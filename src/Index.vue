@@ -1,4 +1,4 @@
-<style>
+<style scoped>
   .root {
     display: flex;
     /* background-color: gray; */
@@ -10,6 +10,10 @@
   }
   .left {
     flex: 1;
+  }
+  .tab {
+    width: 100%;
+    height: 100%;
   }
   .right {
     flex: 6;
@@ -28,6 +32,9 @@
 <template lang="pug">
   .root
     .left
+      Tab.tab(
+        :items="tabs"
+      )
     .right
       .top
       BasicChart.graph(
@@ -41,18 +48,58 @@
 <script lang="ts">
 import Vue from 'vue'
 import BasicChart from './components/BasicChart.vue'
+import Tab from './components/Tab/TabContainer.vue'
+import { AsEnumerable } from 'linq-es2015'
 import { DataReceiver, Events, ProfileLog, TickLog } from './DataReceiver'
+
+interface Tab {
+  tab: Entry[]
+  category: string
+}
+
+interface Entry {
+  name: string
+}
 
 export default Vue.extend({
   components: {
-    BasicChart
+    BasicChart,
+    Tab
   },
   data () {
     const dataReceiver = new DataReceiver()
-    return {
-      dataReceiver,
-      tick: 0
+
+    dataReceiver.eventHandler = (data) => {
+      switch (data.type) {
+        case 'InitEntries': {
+          console.log('initEntries')
+
+          const result = AsEnumerable(data.data)
+            .GroupBy((d: any) => d.category, (v: any) => v.name)
+            .ToMap(d => d.key as string, v => new Set<string>(v))
+
+          returnValue.tabs = result
+        } break
+
+        case 'EntryAdded': {
+          console.log('entryAdded')
+          console.log(data.data)
+        } break
+
+        case 'EntrySwapped': {
+          console.log('entryswapped')
+          console.log(data.data)
+        } break
+      }
     }
+
+    const returnValue = {
+      dataReceiver,
+      tick: 0,
+      tabs: new Map<string, Set<string>>()
+    }
+
+    return returnValue
   },
 
   computed: {
@@ -60,7 +107,7 @@ export default Vue.extend({
   mounted () {
     // test code
 
-    const DEBUG = true // set true to debug mode.
+    const DEBUG = false // set true to debug mode.
     if (DEBUG) {
       const log = new ProfileLog('test_data', 'test_data')
       this.dataReceiver.logs.set(log.key, log)

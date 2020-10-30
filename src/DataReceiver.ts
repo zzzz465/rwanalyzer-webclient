@@ -4,9 +4,8 @@ export const enum Events {
 }
 
 interface jsonData {
-    type: string
+    type: 'InitEntries' | 'EntryAdded' | 'EntrySwapped' | 'EntryRemoved' | 'data'
     data: any
-    globalTick: number
 }
 
 export interface control {
@@ -64,16 +63,15 @@ export class DataReceiver {
     }
 
     private messageHandler(ev: MessageEvent) {
-        const parsed = JSON.parse(JSON.parse(ev.data)) as jsonData
+        const parsed = JSON.parse(ev.data) as jsonData
 
         switch (parsed.type) {
-            case 'reset': {
-                this.logs.clear()
-            } break
-
             case 'data': { // TODO - fix interface structure
-                const data = parsed.data as TickLog[]
-                data.map(d => this.handleData(d as any, parsed.globalTick))
+                const data = parsed.data as {
+                    tickLogs: TickLog[]
+                    globalTick: number
+                }
+                data.tickLogs.map(d => this.handleData(d as any, data.globalTick))
             } break
         }
 

@@ -45,8 +45,8 @@ export default Vue.extend({
 
   data () {
     const svg = d3.create('svg')
-      .attr('width', 1920)
-      .attr('height', 1080)
+      .attr('width', 1280)
+      .attr('height', 720)
 
     svg.node()
 
