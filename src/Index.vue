@@ -5,7 +5,6 @@
     margin-left: auto;
     margin-right: auto;
     margin-top: 40px;
-    width: 1680px;
     height: 1050px;
   }
   .left {
@@ -14,8 +13,11 @@
   .tab {
     width: 100%;
     height: 100%;
+    max-height: 100%;
+    overflow: scroll;
   }
   .right {
+    margin-left: 20px;
     flex: 6;
     /* background-color: yellow; */
     display: flex;
@@ -34,12 +36,13 @@
     .left
       Tab.tab(
         :items="tabs"
+        :currentEntry="currentEntry"
       )
     .right
       .top
       BasicChart.graph(
-        :logs="dataReceiver.logs"
-        :lastTick="tick"
+        :logs="logs"
+        :lastTick="dataReceiver.currentTick"
         :tickPerScreen="300"
         :resolution="100"
         )
@@ -69,11 +72,18 @@ export default Vue.extend({
   data () {
     const dataReceiver = new DataReceiver()
 
+    const returnValue = {
+      dataReceiver,
+      tick: 0,
+      tabs: new Map<string, Set<string>>(),
+      currentEntry: '',
+      logs: [] as ProfileLog[]
+    }
+
     dataReceiver.eventHandler = (data) => {
       switch (data.type) {
-        case 'InitEntries': {
-          console.log('initEntries')
 
+        case 'InitEntries': {
           const result = AsEnumerable(data.data)
             .GroupBy((d: any) => d.category, (v: any) => v.name)
             .ToMap(d => d.key as string, v => new Set<string>(v))
@@ -82,21 +92,16 @@ export default Vue.extend({
         } break
 
         case 'EntryAdded': {
-          console.log('entryAdded')
-          console.log(data.data)
         } break
 
         case 'EntrySwapped': {
-          console.log('entryswapped')
-          console.log(data.data)
+          returnValue.currentEntry = data.data.name as string
+        } break
+
+        case 'data': {
+          returnValue.logs = [...dataReceiver.logs.values()]
         } break
       }
-    }
-
-    const returnValue = {
-      dataReceiver,
-      tick: 0,
-      tabs: new Map<string, Set<string>>()
     }
 
     return returnValue

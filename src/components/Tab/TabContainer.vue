@@ -1,6 +1,7 @@
 <style>
   .tabs {
-    background-color: yellow;
+    background-color: RGB(200, 200, 200);
+    overflow: scroll;
   }
 </style>
 
@@ -10,6 +11,7 @@
       Tab(
         :name="key"
         :set="set"
+        :currentEntry="currentEntry"
       )
 </template>
 
@@ -26,6 +28,10 @@ export default Vue.extend({
       type: Map,
       required: true,
       default: () => new Map<string, Set<string>>()
+    },
+    currentEntry: {
+      type: String,
+      required: true
     }
   },
 

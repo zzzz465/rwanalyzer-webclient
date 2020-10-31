@@ -2,7 +2,7 @@
   .graphRoot {
     width: 100%;
     height: 100%;
-    background-color: RGB(240, 240, 240);
+    background-color: RGB(60, 60, 60);
   }
 </style>
 
@@ -20,7 +20,7 @@ import { selectAll, tree } from 'd3'
 export default Vue.extend({
   props: {
     logs: {
-      type: Map,
+      type: Array,
       required: true
     },
     lastTick: {
@@ -45,7 +45,7 @@ export default Vue.extend({
 
   data () {
     const svg = d3.create('svg')
-      .attr('width', 1280)
+      .attr('width', 1920)
       .attr('height', 720)
 
     svg.node()
@@ -95,7 +95,7 @@ export default Vue.extend({
     getColor: d3.scaleOrdinal(d3.schemeSet3),
 
     updateGraph () {
-      const logs = this.getLogs()
+      const logs = this.logs as ProfileLog[]
 
       this.text(logs)
 
@@ -164,10 +164,6 @@ export default Vue.extend({
         .attr('y', (d, i) => i * (25))
         .text(d => d.label)
     },
-
-    getLogs (): ProfileLog[] {
-      return [...(this.logs as Map<string, ProfileLog>).values()]
-    }
   }
 })
 </script>

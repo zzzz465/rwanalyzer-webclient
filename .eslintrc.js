@@ -19,6 +19,7 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     '@typescript-eslint/member-delimiter-style': 'off',
     'indent': 2,
-    '@typescript-eslint/no-empty-function' : 'off'
+    '@typescript-eslint/no-empty-function' : 'off',
+    'no-lone-blocks': 'off'
   }
 }

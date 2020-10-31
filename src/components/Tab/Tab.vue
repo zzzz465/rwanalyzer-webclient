@@ -1,13 +1,19 @@
-<style>
-
+<style scoped>
+  .selected {
+    border: 3px solid;
+    padding: 8px;
+    border-color: red;
+  }
 </style>
 
 <template lang="pug">
   .root
     .title
-      p {{ name }}
-    div(v-for="item in entries")
-      div {{ item }}
+      h2 {{ name }}
+    .scroll
+      div.entries(v-for="item in entries")
+        v-btn.selected(v-if="item === currentEntry" block) {{ item }}
+        v-btn(v-else block) {{ item }}
 </template>
 
 <script lang="ts">
@@ -20,6 +26,10 @@ export default Vue.extend({
     },
     set: {
       type: Set,
+      required: true
+    },
+    currentEntry: {
+      type: String,
       required: true
     }
   },

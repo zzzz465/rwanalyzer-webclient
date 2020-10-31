@@ -62,6 +62,11 @@ export class DataReceiver {
         this._currentTick = 0
     }
 
+    /** call when the selection(currentEntry) is changed */
+    public clearLogs() {
+        this.logs.clear()
+    }
+
     private messageHandler(ev: MessageEvent) {
         const parsed = JSON.parse(ev.data) as jsonData
 
@@ -98,7 +103,7 @@ export class DataReceiver {
 
         for (const [key, value] of this.logs.entries()) {
             const [last] = value.logs.slice(-1)
-            if (this.currentTick - last.tick > this.logLimit)
+            if (last && this.currentTick - last.tick > this.logLimit)
                 this.logs.delete(key)
         }
     }
