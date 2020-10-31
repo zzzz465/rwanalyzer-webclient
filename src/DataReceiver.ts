@@ -1,3 +1,6 @@
+import { ProfileLog } from './Logs/ProfileLog'
+import { TickLog } from './Logs/TickLog'
+
 export const enum Events {
     Data, // data = TickLog[]
     Control,
@@ -10,34 +13,6 @@ interface jsonData {
 
 export interface control {
     
-}
-
-/** contains data in 1 tick */
-export interface TickLog {
-    /** 몇번 호출되었는지 */
-    hit: number
-    /** 총 시간이 얼마나 걸렸는지 */
-    time: number
-    /** 현재 몇 틱에서 발생한건지 */
-    tick: number
-}
-
-export class ProfileLog {
-    readonly label: string
-    readonly key: string
-    readonly logs: TickLog[]
-
-    constructor(label: string, key: string, public logLimit = 500) {
-        this.label = label
-        this.key = key
-        this.logs = []
-    }
-
-    public appendLog(log: TickLog) {
-        this.logs.push(log)
-        if (this.logs.length > this.logLimit)
-            this.logs.shift()
-    }
 }
 
 export class DataReceiver {

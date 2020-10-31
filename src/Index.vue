@@ -53,7 +53,9 @@ import Vue from 'vue'
 import BasicChart from './components/BasicChart.vue'
 import Tab from './components/Tab/TabContainer.vue'
 import { AsEnumerable } from 'linq-es2015'
-import { DataReceiver, Events, ProfileLog, TickLog } from './DataReceiver'
+import { DataReceiver, Events } from './DataReceiver'
+import { ProfileLog } from './Logs/ProfileLog'
+import { TickLog } from './Logs/TickLog'
 
 interface Tab {
   tab: Entry[]

@@ -13,9 +13,10 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { ProfileLog, TickLog } from '../DataReceiver'
 import * as d3 from 'd3'
 import { selectAll, tree } from 'd3'
+import { ProfileLog } from '@/Logs/ProfileLog'
+import { TickLog } from '@/Logs/TickLog'
 
 export default Vue.extend({
   props: {
