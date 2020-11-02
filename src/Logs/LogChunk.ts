@@ -9,7 +9,7 @@ interface Range {
 
 /** describe chunk of N TickLogs, it's used to draw more simplified charts */
 export class LogChunk implements Iterable<TickLog> {
-  _logs: TickLog[]
+  private _logs: TickLog[]
 
   hit: number
   time: number
@@ -18,7 +18,7 @@ export class LogChunk implements Iterable<TickLog> {
   constructor(
     public readonly profileLog: ProfileLog, 
     public readonly chunkSize: number,
-    startTick: number) {
+    firstLog: TickLog) {
       if (chunkSize <= 0)
         throw new Error(`chunkSize is lower than 1, value: ${chunkSize}`)
 
@@ -26,11 +26,18 @@ export class LogChunk implements Iterable<TickLog> {
 
       this.hit = 0
       this.time = 0
-      this.tick = { start: startTick, end: startTick }
+      this.tick = { start: firstLog.tick, end: firstLog.tick }
+
+      this.appendLog(firstLog)
   }
+
   *[Symbol.iterator](): Iterator<TickLog, void, void> {
     for (const log of this._logs.values())
       yield log
+  }
+
+  isFull() {
+    return this._logs.length >= this.chunkSize
   }
 
   appendLog(log: TickLog): void {

@@ -17,6 +17,7 @@ import * as d3 from 'd3'
 import { selectAll, tree } from 'd3'
 import { ProfileLog } from '@/Logs/ProfileLog'
 import { TickLog } from '@/Logs/TickLog'
+import { LogChunk } from '@/Logs/LogChunk'
 
 export default Vue.extend({
   props: {
@@ -35,12 +36,21 @@ export default Vue.extend({
     resolution: {
       type: Number,
       required: true
+    },
+    yAxisReference: { // which value will be used to draw y axis?
+      type: String,
+      default: 'time'
+      // time | hit
     }
   },
 
   watch: {
     lastTick () {
       this.updateGraph()
+    },
+    yAxisReference () {
+      this.paths.selectAll('path')
+        .remove()
     }
   },
 
@@ -100,6 +110,9 @@ export default Vue.extend({
 
       this.text(logs)
 
+      if(this.lastTick % 10 == 0)
+        console.log(logs[0])
+
       if (logs.length > 0) {
         const line = this.line(this.x(), this.y(logs))
 
@@ -143,7 +156,12 @@ export default Vue.extend({
     },
 
     y (logs: ProfileLog[]) {
-      const max = d3.max(logs, d => d3.max(d.logs, inner => inner.time))!
+      let max: number
+      if (this.yAxisReference === 'hit') {
+        max = d3.max(logs, d => d3.max(d.logs, inner => inner.hit))!
+      } else { // default: time
+        max = d3.max(logs, d => d3.max(d.logs, inner => inner.time))!
+      }
 
       return d3.scaleLinear()
         .domain([max, 0]).nice()
@@ -151,9 +169,13 @@ export default Vue.extend({
     },
 
     line (x: d3.ScaleLinear<number, number>, y: d3.ScaleLinear<number, number>) {
-      return d3.line<TickLog>()
-        .x((d, i) => x(d.tick)!)
-        .y((d, i) => y(d.time)!)
+      const a = d3.line<LogChunk>()
+        .x((d, i) => x(d.tick.start)!)
+
+      if (this.yAxisReference === 'hit')
+        return a.y((d, i) => y(d.hit)!)
+      else
+        return a.y((d, i) => y(d.time)!)
     },
 
     text (logs: ProfileLog[]) {
