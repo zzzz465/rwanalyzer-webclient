@@ -24,6 +24,9 @@ export class LogChunk implements Iterable<TickLog> {
 
       this._logs = []
 
+      if (isNaN(firstLog.tick))
+        console.log(firstLog)
+
       this.hit = 0
       this.time = 0
       this.tick = { start: firstLog.tick, end: firstLog.tick }

@@ -40,11 +40,16 @@
       )
     .right
       .top
+        v-btn(@click="yAxisReference = 'avgTime'") change to avgTime
+        v-btn(@click="yAxisReference = 'time'") change to time
+      .top
+        h3 current setting: {{ yAxisReference }}
       BasicChart.graph(
         :logs="logs"
         :lastTick="logManager.currentTick"
         :tickPerScreen="300"
         :resolution="100"
+        :yAxisReference="yAxisReference"
         )
 </template>
 
@@ -79,21 +84,21 @@ export default Vue.extend({
       tick: 0,
       tabs: new Map<string, Set<string>>(),
       currentEntry: '',
-      logs: [] as ProfileLog[]
+      logs: [] as ProfileLog[],
+      yAxisReference: 'avgTime'
     }
 
-    // const webSocketLogDataReceiver = new WebSocketLogDataReceiver()
-    const mockLogDataReceiver = new MockLogDataReceiver(100)
+    const webSocketLogDataReceiver = new WebSocketLogDataReceiver()
+    // const mockLogDataReceiver = new MockLogDataReceiver(10)
 
     // change this
-    // const iLog: iLogDataReceiver = webSocketLogDataReceiver
-    const iLog: iLogDataReceiver = mockLogDataReceiver
-    mockLogDataReceiver.Start()
+    const iLog: iLogDataReceiver = webSocketLogDataReceiver
+    // const iLog: iLogDataReceiver = mockLogDataReceiver
+    // mockLogDataReceiver.Start()
 
     iLog.onDataReceive = (data) => {
       switch (data.type) {
         case Events.LogData: {
-          console.log(`tick: ${data.globalTick}`)
           logManager.processData(data)
           returnValue.logs = [...logManager.logs.values()]
         } break

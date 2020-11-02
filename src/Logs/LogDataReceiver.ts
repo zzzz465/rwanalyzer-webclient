@@ -51,7 +51,10 @@ export class WebSocketLogDataReceiver implements iLogDataReceiver {
   onDataReceive?: eventHandler<JsonData>
   constructor() {
     this.webSocket = new WebSocket('ws://localhost:4000/rw_analyzer')
-    this.webSocket.onmessage = (d) => this.onDataReceive?.(d.data as JsonData)
+    this.webSocket.onmessage = (d) => { 
+      const data = JSON.parse(d.data)
+      this.onDataReceive?.(data)
+    }
   }
 }
 

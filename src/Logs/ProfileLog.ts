@@ -4,6 +4,7 @@ import { TickLog } from './TickLog'
 export class ProfileLog {
   private readonly _tickLogs: TickLog[]
   private chunkSize: number
+  private logChunkArrSize: number
   readonly label: string
   readonly key: string
   readonly logs: LogChunk[]
@@ -14,6 +15,7 @@ export class ProfileLog {
     this._tickLogs = []
     this.logs = []
     this.chunkSize = chunkSize
+    this.logChunkArrSize = Math.floor(logLimit / chunkSize) + 1
   }
 
   public appendLog(log: TickLog) {
@@ -36,6 +38,9 @@ export class ProfileLog {
     if (last == undefined || last.isFull()) {
       last = new LogChunk(this, this.chunkSize, log)
       this.logs.push(last)
+
+      if (this.logs.length > this.logChunkArrSize)
+        this.logs.shift()
     }
 
     last.appendLog(log)

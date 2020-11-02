@@ -40,14 +40,15 @@ export default Vue.extend({
     yAxisReference: { // which value will be used to draw y axis?
       type: String,
       default: 'time'
-      // time | hit
+      // time | avgTime
     }
   },
 
   watch: {
-    lastTick () {
-      this.updateGraph()
-    },
+    // lastTick () {
+      // if (this.lastTick % 10 === 0)
+        // this.updateGraph()
+    // },
     yAxisReference () {
       this.paths.selectAll('path')
         .remove()
@@ -66,9 +67,13 @@ export default Vue.extend({
 
     const xAxis = svg.append('g')
       .attr('transform', 'translate(0, 700)')
+      .attr('color', 'white')
+      .style('font', '20px times')
 
     const yAxis = svg.append('g')
-      .attr('transform', 'translate(30, 0)')
+      .attr('transform', 'translate(50, 0)')
+      .attr('color', 'white')
+      .style('font', '18px times')
 
     const paths = svg.append('g')
       .attr('fill', 'none')
@@ -100,6 +105,10 @@ export default Vue.extend({
     (this.$refs.graph as HTMLDivElement).append(svgNode)
 
     this.drawXAxis()
+
+    setInterval(() => {
+      this.updateGraph()
+    }, 1000 / 60)
   },
 
   methods: {
@@ -110,7 +119,7 @@ export default Vue.extend({
 
       this.text(logs)
 
-      if(this.lastTick % 10 == 0)
+      if(this.lastTick % 10 === 0)
         console.log(logs[0])
 
       if (logs.length > 0) {
@@ -157,10 +166,10 @@ export default Vue.extend({
 
     y (logs: ProfileLog[]) {
       let max: number
-      if (this.yAxisReference === 'hit') {
-        max = d3.max(logs, d => d3.max(d.logs, inner => inner.hit))!
-      } else { // default: time
+      if (this.yAxisReference === 'time') {
         max = d3.max(logs, d => d3.max(d.logs, inner => inner.time))!
+      } else { // default: time
+        max = d3.max(logs, d => d3.max(d.logs, inner => inner.time / inner.chunkSize))!
       }
 
       return d3.scaleLinear()
@@ -172,10 +181,10 @@ export default Vue.extend({
       const a = d3.line<LogChunk>()
         .x((d, i) => x(d.tick.start)!)
 
-      if (this.yAxisReference === 'hit')
-        return a.y((d, i) => y(d.hit)!)
-      else
+      if (this.yAxisReference === 'time')
         return a.y((d, i) => y(d.time)!)
+      else
+        return a.y((d, i) => y(d.time / d.chunkSize)!)
     },
 
     text (logs: ProfileLog[]) {
