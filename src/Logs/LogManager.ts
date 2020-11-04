@@ -46,7 +46,7 @@ export class LogManager {
             const profileLog = this.logs.get(key)!
             profileLog.appendLog(log)
         } else {
-            const profileLog = new ProfileLog(label, key, 500)
+            const profileLog = new ProfileLog(label, key, 500, 5)
             profileLog.appendLog(log)
             this.logs.set(key, profileLog)
         }

@@ -5,11 +5,16 @@ export type JsonData =
   | InitEntries
   | EntryAdded
   | EntrySwapped
+  | ToggleGameState
 
 export interface LogData {
   type: Events.LogData
   tickLogs: (TickLog & { label: string; key: string })[]
   globalTick: number
+}
+
+export interface ToggleGameState {
+  type: Events.toggleTickState
 }
 
 export interface InitEntries {
@@ -36,6 +41,7 @@ export const enum Events {
   InitEntries = 'InitEntries',
   EntryAdded = 'EntryAdded',
   EntrySwapped = 'EntrySwapped',
+  toggleTickState = 'ToggleGameState'
 }
 
 interface eventHandler<T> {
@@ -44,9 +50,10 @@ interface eventHandler<T> {
 
 export interface iLogDataReceiver {
   onDataReceive?: eventHandler<JsonData>
+  sendMessage: (data: JsonData) => void
 }
 
-export class WebSocketLogDataReceiver implements iLogDataReceiver {
+export class WebSocketClient implements iLogDataReceiver {
   private webSocket: WebSocket
   onDataReceive?: eventHandler<JsonData>
   constructor() {
@@ -56,13 +63,18 @@ export class WebSocketLogDataReceiver implements iLogDataReceiver {
       this.onDataReceive?.(data)
     }
   }
+
+  sendMessage(data: JsonData) {
+    this.webSocket.send(JSON.stringify(data))
+  }
 }
 
 export class MockLogDataReceiver implements iLogDataReceiver {
   onDataReceive?: eventHandler<JsonData>
   private _id?: number
+  private paused: boolean
   constructor(public readonly interval: number) {
-
+    this.paused = false
   }
 
   /** start generating mock datas */
@@ -89,6 +101,8 @@ export class MockLogDataReceiver implements iLogDataReceiver {
     const mockDatas = [['key1', 'name1'], ['key2', 'name2'], ['key3', 'name3']]
 
     this._id = setInterval(() => {
+      if (this.paused) return
+
       jsonData.globalTick++
       jsonData.tickLogs = []
       for (const [key, name] of mockDatas)
@@ -109,5 +123,13 @@ export class MockLogDataReceiver implements iLogDataReceiver {
    */
   Reset() {
 
+  }
+
+  sendMessage(data: JsonData) {
+    switch (data.type) {
+      case Events.toggleTickState:
+        this.paused = !this.paused
+        break
+    }
   }
 }

@@ -42,6 +42,7 @@
       .top
         v-btn(@click="yAxisReference = 'avgTime'") change to avgTime
         v-btn(@click="yAxisReference = 'time'") change to time
+        v-btn(@click="toggleTick") toggle Tick
       .top
         h3 current setting: {{ yAxisReference }}
       BasicChart.graph(
@@ -59,8 +60,10 @@ import BasicChart from './components/BasicChart.vue'
 import Tab from './components/Tab/TabContainer.vue'
 import { AsEnumerable } from 'linq-es2015'
 import { LogManager } from './Logs/LogManager'
-import { Events, WebSocketLogDataReceiver, MockLogDataReceiver, iLogDataReceiver } from './Logs/LogDataReceiver'
+import { Events, WebSocketClient, MockLogDataReceiver, iLogDataReceiver } from './Logs/LogDataReceiver'
 import { ProfileLog } from './Logs/ProfileLog'
+
+import * as d3 from 'd3'
 
 interface Tab {
   tab: Entry[]
@@ -79,22 +82,24 @@ export default Vue.extend({
   data () {
     const logManager = new LogManager()
 
+    // const webSocketClient = new WebSocketClient()
+
+    const mockLogDataReceiver = new MockLogDataReceiver(10)
+
+    // change this
+    // const iLog: iLogDataReceiver = webSocketClient
+    const iLog: iLogDataReceiver = mockLogDataReceiver
+    mockLogDataReceiver.Start()
+
     const returnValue = {
       logManager,
       tick: 0,
       tabs: new Map<string, Set<string>>(),
       currentEntry: '',
       logs: [] as ProfileLog[],
-      yAxisReference: 'avgTime'
+      yAxisReference: 'avgTime',
+      dataReceiver: iLog
     }
-
-    const webSocketLogDataReceiver = new WebSocketLogDataReceiver()
-    // const mockLogDataReceiver = new MockLogDataReceiver(10)
-
-    // change this
-    const iLog: iLogDataReceiver = webSocketLogDataReceiver
-    // const iLog: iLogDataReceiver = mockLogDataReceiver
-    // mockLogDataReceiver.Start()
 
     iLog.onDataReceive = (data) => {
       switch (data.type) {
@@ -125,7 +130,14 @@ export default Vue.extend({
   computed: {
   },
   mounted () {
-
+    console.log(d3)
+  },
+  methods: {
+    toggleTick () {
+      this.dataReceiver.sendMessage({
+        type: Events.toggleTickState
+      })
+    }
   }
 })
 </script>

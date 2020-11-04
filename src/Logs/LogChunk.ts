@@ -1,4 +1,3 @@
-import { thresholdFreedmanDiaconis } from 'd3';
 import { ProfileLog } from './ProfileLog';
 import { TickLog } from './TickLog';
 
@@ -23,9 +22,6 @@ export class LogChunk implements Iterable<TickLog> {
         throw new Error(`chunkSize is lower than 1, value: ${chunkSize}`)
 
       this._logs = []
-
-      if (isNaN(firstLog.tick))
-        console.log(firstLog)
 
       this.hit = 0
       this.time = 0

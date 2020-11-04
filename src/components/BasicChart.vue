@@ -14,10 +14,11 @@
 <script lang="ts">
 import Vue from 'vue'
 import * as d3 from 'd3'
-import { selectAll, tree } from 'd3'
+import * as d3_array from 'd3-array'
 import { ProfileLog } from '@/Logs/ProfileLog'
 import { TickLog } from '@/Logs/TickLog'
 import { LogChunk } from '@/Logs/LogChunk'
+import { AsEnumerable } from 'linq-es2015'
 
 export default Vue.extend({
   props: {
@@ -55,6 +56,20 @@ export default Vue.extend({
     }
   },
 
+  computed: {
+    filteredLogs () {
+      const logs = this.logs as ProfileLog[]
+      const filtered = logs.map(log => {
+        const copy = Object.assign({}, log);
+        (<any>copy).logs = log.logs.filter((d) => (this.lastTick - d.tick.end < this.tickPerScreen - 10)) // magic number, delete later
+        copy.logs.pop()
+        return copy
+      })
+
+      return filtered
+    }
+  },
+
   data () {
     const svg = d3.create('svg')
       .attr('width', 1920)
@@ -82,12 +97,26 @@ export default Vue.extend({
       .attr('stroke-linejoin', 'round')
       .attr('stroke-linecap', 'round')
 
+    const rect = svg.append('rect')
+      .style('fill', 'none')
+      .style('pointer-events', 'all')
+      .attr('width', 1920)
+      .attr('height', 720)
+
+    const focusText = svg.append('g')
+      .append('text')
+        .style('opacity', 0)
+        .attr('text-anchor', 'left')
+        .attr('alignment-baseline', 'middle')
+
     return {
       svg,
       xAxis,
       yAxis,
       paths,
       legend,
+      rect,
+      focusText,
       colors: [
         'red',
         'orange',
@@ -96,7 +125,8 @@ export default Vue.extend({
         'blue',
         'purple',
         'cyan'
-      ]
+      ],
+      mousePos: [] as number[]
     }
   },
 
@@ -109,21 +139,29 @@ export default Vue.extend({
     setInterval(() => {
       this.updateGraph()
     }, 1000 / 60)
+
+    const mousemove = this.mouseMove
+
+    this.rect
+      .on('mouseover', function () {
+        console.log(`mouseover on rectElement`)
+      })
+      .on('mousemove', function () {
+        mousemove(this)
+      })
   },
 
   methods: {
     getColor: d3.scaleOrdinal(d3.schemeSet3),
 
     updateGraph () {
-      const logs = this.logs as ProfileLog[]
+      const logs = this.filteredLogs
 
       this.text(logs)
 
-      if(this.lastTick % 10 === 0)
-        console.log(logs[0])
-
       if (logs.length > 0) {
-        const line = this.line(this.x(), this.y(logs))
+        // const line = this.line(this.x(), this.y(logs))
+        const line = this.line(this.x(), this.y())
 
         this.paths
           .selectAll('path')
@@ -152,7 +190,8 @@ export default Vue.extend({
     },
 
     drawYAxis (logs: ProfileLog[]) {
-      this.yAxis.call(d3.axisLeft(this.y(logs)))
+      // this.yAxis.call(d3.axisLeft(this.y(logs)))
+      this.yAxis.call(d3.axisLeft(this.y()))
     },
 
     x () {
@@ -164,7 +203,9 @@ export default Vue.extend({
         .range([30, 1250]) // padding 30 each side
     },
 
-    y (logs: ProfileLog[]) {
+    // y (logs: ProfileLog[]) {
+    y () {
+      const logs = this.filteredLogs
       let max: number
       if (this.yAxisReference === 'time') {
         max = d3.max(logs, d => d3.max(d.logs, inner => inner.time))!
@@ -179,6 +220,7 @@ export default Vue.extend({
 
     line (x: d3.ScaleLinear<number, number>, y: d3.ScaleLinear<number, number>) {
       const a = d3.line<LogChunk>()
+        .curve(d3.curveBasis)
         .x((d, i) => x(d.tick.start)!)
 
       if (this.yAxisReference === 'time')
@@ -196,6 +238,50 @@ export default Vue.extend({
         .attr('y', (d, i) => i * (25))
         .text(d => d.label)
     },
+
+    mouseOver() {
+      this.focusText.style('opacity', 1)
+    },
+
+    mouseMove(rect: SVGRectElement) {
+      console.log(d3)
+      const pos = d3.mouse(rect)
+      const targetTick = this.x().invert(pos[0])
+      const chunks = this.filteredLogs.map(log => {
+        return {
+          log,
+          least: d3_array.least(log.logs, chunk => Math.abs(chunk.tick.start - targetTick))
+        }
+      }).filter(c => !!c.least)
+
+      let targetProfileLog: ProfileLog | undefined = undefined
+      
+      console.log('mouseMove')
+
+      switch (this.yAxisReference) {
+        case 'time': {
+          targetProfileLog = d3_array.least(chunks, chunk => chunk.least!.time)?.log
+        } break
+
+        case 'avgTime': {
+          targetProfileLog = d3_array.least(chunks, chunk => chunk.least!.time / chunk.least!.chunkSize)?.log
+        } break
+      }
+
+      if (targetProfileLog) {
+        this.paths
+          .selectAll('path')
+          .data(this.filteredLogs)
+          .join('path')
+          .attr('stroke', profile => profile === targetProfileLog ? null : '#ddd')
+            .filter(d => d === targetProfileLog).raise()
+      }
+
+    },
+    
+    mouseOut() {
+
+    }
   }
 })
 </script>
