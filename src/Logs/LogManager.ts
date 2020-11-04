@@ -4,23 +4,32 @@ import { Events, LogData } from './LogDataReceiver'
 
 export class LogManager {
     private _currentTick: number
+    private _logLimit: number // how many logs we should store?
+    private _chunkSize: number
     public readonly logs: Map<string, ProfileLog>
     get currentTick(): number {
         return this._currentTick
     }
-    private _logLimit: number // how many logs we should store?
     get logLimit() {
         return this._logLimit
+    }
+    get chunkSize() {
+        return this._chunkSize
     }
 
     set logLimit(val: number) {
 
     }
 
-    constructor(logLimit = 500) {
+    set chunkSize(val: number) {
+
+    }
+
+    constructor(logLimit = 500, chunkSize = 5) {
         this.logs = new Map()
         this._currentTick = 0
         this._logLimit = logLimit
+        this._chunkSize = chunkSize
     }
 
     /** call when the selection(currentEntry) is changed */
@@ -46,7 +55,7 @@ export class LogManager {
             const profileLog = this.logs.get(key)!
             profileLog.appendLog(log)
         } else {
-            const profileLog = new ProfileLog(label, key, 500, 5)
+            const profileLog = new ProfileLog(label, key, this.logLimit, this.chunkSize)
             profileLog.appendLog(log)
             this.logs.set(key, profileLog)
         }

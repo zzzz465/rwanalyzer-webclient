@@ -34,10 +34,6 @@ export default Vue.extend({
       type: Number,
       required: true
     },
-    resolution: {
-      type: Number,
-      required: true
-    },
     yAxisReference: { // which value will be used to draw y axis?
       type: String,
       default: 'time'
@@ -59,6 +55,7 @@ export default Vue.extend({
   computed: {
     filteredLogs () {
       const logs = this.logs as ProfileLog[]
+      // return logs
       const filtered = logs.map(log => {
         const copy = Object.assign({}, log);
         (<any>copy).logs = log.logs.filter((d) => (this.lastTick - d.tick.end < this.tickPerScreen - 10)) // magic number, delete later
@@ -109,6 +106,14 @@ export default Vue.extend({
         .attr('text-anchor', 'left')
         .attr('alignment-baseline', 'middle')
 
+    const circle = svg.append('circle')
+      .attr('stroke', 'red')
+      .attr('stroke-width', '5')
+      .attr('cx', '500')
+      .attr('cy', '500')
+      .attr('r', '8')
+      .attr('fill', '#00000000')
+
     return {
       svg,
       xAxis,
@@ -117,15 +122,7 @@ export default Vue.extend({
       legend,
       rect,
       focusText,
-      colors: [
-        'red',
-        'orange',
-        'yellow',
-        'green',
-        'blue',
-        'purple',
-        'cyan'
-      ],
+      circle,
       mousePos: [] as number[]
     }
   },
@@ -146,9 +143,7 @@ export default Vue.extend({
       .on('mouseover', function () {
         console.log(`mouseover on rectElement`)
       })
-      .on('mousemove', function () {
-        mousemove(this)
-      })
+      .on('mousemove', (event) => this.mouseMove(event))
   },
 
   methods: {
@@ -226,7 +221,7 @@ export default Vue.extend({
       if (this.yAxisReference === 'time')
         return a.y((d, i) => y(d.time)!)
       else
-        return a.y((d, i) => y(d.time / d.chunkSize)!)
+        return a.y((d, i) => y(d.time / d.chunkSize)! )
     },
 
     text (logs: ProfileLog[]) {
@@ -243,38 +238,53 @@ export default Vue.extend({
       this.focusText.style('opacity', 1)
     },
 
-    mouseMove(rect: SVGRectElement) {
-      console.log(d3)
-      const pos = d3.mouse(rect)
+    mouseMove(rect: any) {
+      const pos = d3.pointer(rect)
       const targetTick = this.x().invert(pos[0])
+
+      const test = this.filteredLogs[0]
+      const leastOne = d3_array.least(test.logs, d => Math.abs(d.tick.start - targetTick))
+
       const chunks = this.filteredLogs.map(log => {
         return {
           log,
           least: d3_array.least(log.logs, chunk => Math.abs(chunk.tick.start - targetTick))
         }
-      }).filter(c => !!c.least)
+      })
 
-      let targetProfileLog: ProfileLog | undefined = undefined
-      
-      console.log('mouseMove')
+      let target: any = undefined
+      let time = 0
 
       switch (this.yAxisReference) {
         case 'time': {
-          targetProfileLog = d3_array.least(chunks, chunk => chunk.least!.time)?.log
+          const chunk = d3_array.least(chunks, chunk => chunk.least!.time)
+          target = {
+            chunk: chunk?.least, profileLog: chunk?.log
+          }
         } break
 
         case 'avgTime': {
-          targetProfileLog = d3_array.least(chunks, chunk => chunk.least!.time / chunk.least!.chunkSize)?.log
+          
+          const chunk = d3_array.least(chunks, chunk => chunk.least!.time / chunk.least!.chunkSize)
+          target = {
+            chunk: chunk?.least, profileLog: chunk?.log
+          }
         } break
       }
 
-      if (targetProfileLog) {
+      if (target.chunk) {
         this.paths
           .selectAll('path')
           .data(this.filteredLogs)
           .join('path')
-          .attr('stroke', profile => profile === targetProfileLog ? null : '#ddd')
-            .filter(d => d === targetProfileLog).raise()
+          .attr('stroke', profile => profile === target.profileLog ? null : '#ddd')
+            .filter(d => d === target.profileLog).raise()
+
+        console.log(target)
+
+        this.circle
+          .attr('cx', `${this.x()(targetTick)}`)
+          .attr('cy', `${this.y()(target.chunk.time)}`)
       }
 
     },

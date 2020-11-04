@@ -48,8 +48,7 @@
       BasicChart.graph(
         :logs="logs"
         :lastTick="logManager.currentTick"
-        :tickPerScreen="300"
-        :resolution="100"
+        :tickPerScreen="900"
         :yAxisReference="yAxisReference"
         )
 </template>
@@ -80,7 +79,7 @@ export default Vue.extend({
     Tab
   },
   data () {
-    const logManager = new LogManager()
+    const logManager = new LogManager(900)
 
     // const webSocketClient = new WebSocketClient()
 

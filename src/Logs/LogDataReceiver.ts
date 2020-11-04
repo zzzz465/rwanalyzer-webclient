@@ -99,6 +99,7 @@ export class MockLogDataReceiver implements iLogDataReceiver {
     })
 
     const mockDatas = [['key1', 'name1'], ['key2', 'name2'], ['key3', 'name3']]
+    // const mockDatas = [['key1', 'name1']]
 
     this._id = setInterval(() => {
       if (this.paused) return

@@ -15,7 +15,8 @@ export class ProfileLog {
     this._tickLogs = []
     this.logs = []
     this.chunkSize = chunkSize
-    this.logChunkArrSize = Math.floor(logLimit / chunkSize) + 1
+    this.logChunkArrSize = 2000
+    // this.logChunkArrSize = Math.floor(logLimit / chunkSize) + 1
   }
 
   public appendLog(log: TickLog) {
