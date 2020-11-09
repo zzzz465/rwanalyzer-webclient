@@ -40,13 +40,14 @@
       )
     .right
       .top
-        v-btn(@click="yAxisReference = 'avgTime'") change to avgTime
+        v-btn(@click="yAxisReference = 'hit'") change to hit
         v-btn(@click="yAxisReference = 'time'") change to time
         v-btn(@click="toggleTick") toggle Tick
       .top
         h3 current setting: {{ yAxisReference }}
       BasicChart.graph(
         :logManager="logManager"
+        :yAxisReference="yAxisReference"
         )
 </template>
 
@@ -58,7 +59,7 @@ import { AsEnumerable } from 'linq-es2015'
 import { LogManager } from './Logs/LogManager'
 import { Events, WebSocketClient, MockLogDataReceiver, iLogDataReceiver } from './Logs/LogDataReceiver'
 import { ProfileLog } from './Logs/ProfileLog'
-
+import Deque from 'double-ended-queue'
 import * as d3 from 'd3'
 
 interface Tab {
@@ -125,7 +126,6 @@ export default Vue.extend({
   computed: {
   },
   mounted () {
-    console.log(d3)
   },
   methods: {
     toggleTick () {

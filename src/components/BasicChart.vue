@@ -105,7 +105,8 @@ export default Vue.extend({
       rect,
       focusText,
       circle,
-      mousePos: [] as number[],
+      mousePos: [0, 0] as number[],
+      isHover: false,
       frameCounter: 0
     }
   },
@@ -116,14 +117,14 @@ export default Vue.extend({
 
     setInterval(() => {
       this.updateGraph()
-    }, 1000 / 120)
+    }, 1000 / 80)
 
     setInterval(() => {
       console.log(`framerate: ${this.frameCounter}`)
       this.frameCounter = 0
     }, 1000)
 
-/*
+    /*
     this.rect
       .on('mouseover', (event) => {
         console.log('mouseover')
@@ -133,21 +134,21 @@ export default Vue.extend({
       })
 */
 
-    /*
     this.rect
-      .on('mouseover', function () {
-        console.log(`mouseover on rectElement`)
-      })
-      .on('mousemove', (event) => this.mouseMove(event))
-    */
+      .on('mouseover', (event) => this.mouseover(event))
+      .on('mousemove', (event) => this.mousemove(event))
+      .on('mouseleave', (event) => this.mouseleave(event))
   },
 
   methods: {
+    getColor: d3.scaleOrdinal(d3.schemeSet3),
+
     updateGraph () {
       const logManager = this.logManager
+
       const range: Range = {
-        start: Math.trunc((logManager.currentTick - this.range) / logManager.chunkSize),
-        end: Math.trunc((logManager.currentTick - logManager.chunkSize) / logManager.chunkSize)
+        start: Math.trunc((logManager.currentTick - this.range)),
+        end: Math.trunc((logManager.currentTick - logManager.chunkSize))
       }
       const filteredLogs = this.logManager.profileLogs
         .map(pLog => {
@@ -156,8 +157,8 @@ export default Vue.extend({
             .ToArray()
 
           return {
-            ...pLog,
-            original: pLog,
+            label: pLog.label,
+            key: pLog.key,
             filteredChunks: filtered
           }
         })
@@ -171,13 +172,10 @@ export default Vue.extend({
         return
       }
 
-
       const flattenChunks = AsEnumerable(filteredLogs)
         .Select(c => c.filteredChunks)
         .SelectMany(c => c)
         .ToArray()
-
-      console.log(`lasttick: ${logManager.currentTick} maxVal: ${d3_array.max(flattenChunks, d => d.tick.start)}`)
 
       // make x function
       const x = (() => {
@@ -190,18 +188,10 @@ export default Vue.extend({
 
       // make y function
       const y = (() => {
-        let max = 0
-        switch (this.yAxisReference) {
-          case 'time':
-            max = d3.max(flattenChunks, c => c.time) || 0
-            break
-          case 'avgTime':
-            max = d3.max(flattenChunks, c => c.time / c.chunkSize) || 0
-            break
-        }
+        const max = d3.max(flattenChunks, c => this.getYValue(c)) || 0
 
         return d3.scaleLinear()
-          .domain([max, 0]).nice()
+          .domain([0, max]).nice()
           .range([30, 690])
       })()
 
@@ -212,44 +202,77 @@ export default Vue.extend({
       this.yAxis.call(d3.axisLeft(y))
 
       // make line function
-      const line = (() => {
-        const line = d3.line<LogChunk>()
-          .curve(d3.curveBasis) // give line curve
-          .x((d, i) => x(d.tick.start)!)
-
-        if (this.yAxisReference === 'time') { return line.y((d, i) => y(d.time)!) } else { return line.y((d, i) => y(d.time / d.chunkSize)!) }
-      })()
+      const line = d3.line<LogChunk>()
+        // .curve(d3.curveBasis) // give line curve
+        .x((d, i) => x(d.tick.start)!)
+        .y(d => this.getYValue(d))
 
       // draw path
-      this.paths
+      const drawedPaths = this.paths
         .selectAll('path')
         .data(pLogs, (d: any) => d.key)
         .join(
           enter => enter
             .append('path')
-            .attr('stroke', d => d.color)
+            .attr('stroke', d => this.getColor(d.key))
             .attr('d', d => line(d.filteredChunks))
           ,
           update => update
-            .attr('stroke', d => d.color)
+            .attr('stroke', d => this.getColor(d.key))
             .attr('d', d => line(d.filteredChunks))
           ,
           exit => exit.remove()
         )
 
+      if (this.isHover) { // hovering
+        const xPos = this.mousePos[0]
+        const yPos = this.mousePos[1]
+        const tick = x.invert(xPos)
+        const yVal = y.invert(yPos)
+        const matchedLogs = []
+        for (const log of filteredLogs) {
+          const selectedChunk = log.filteredChunks.find(d => d.tick.start <= tick && tick <= d.tick.end)
+          if (selectedChunk) {
+            matchedLogs.push({
+              profileLog: log,
+              selectedChunk
+            })
+          }
+        }
+
+        console.log(yVal)
+        console.log(matchedLogs.map(d => d.selectedChunk.hit))
+
+        const least = d3_array.least(matchedLogs, d => Math.abs(yVal - this.getYValue(d.selectedChunk)))
+        if (least) {
+          drawedPaths
+            .attr('stroke', d => d.key === least.profileLog.key ? null : '#ddd')
+            .filter(d => d.key === least.profileLog.key).raise()
+
+          this.circle
+            .attr('cx', x(least.selectedChunk.tick.start)!)
+            .attr('cy', this.getYValue(least.selectedChunk)!)
+        }
+      }
+
       this.frameCounter++
     },
 
-    mouseover() {
-
+    getYValue (data: { hit: number, time: number, chunkSize: number }) {
+      if (this.yAxisReference === 'hit') { return data.hit } else { return data.time }
     },
 
-    mousemove() {
-
+    mouseover (event: any) {
+      this.isHover = true
     },
-    
-    mouseleave() {
 
+    mousemove (event: any) {
+      // this.mousePos =
+      this.mousePos = d3.pointer(event)
+    },
+
+    mouseleave (event: any) {
+      this.isHover = false
     }
 
   }

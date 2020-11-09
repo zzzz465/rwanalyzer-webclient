@@ -90,15 +90,27 @@ export class MockLogDataReceiver implements iLogDataReceiver {
       return Math.floor(Math.random() * 100)
     }
 
-    const generateRandomTickLog = (key: string, label: string) => ({
-      hit: RandomInt(),
+    const generateRandomTickLog = (key: string, label: string, factor: number) => ({
+      hit: RandomInt() * factor,
       key,
       label,
-      time: Math.random() * 10,
+      time: Math.random() * factor,
       tick: jsonData.globalTick
     })
 
-    const mockDatas = [['key1', 'name1'], ['key2', 'name2'], ['key3', 'name3']]
+    const mockDatas = [{
+      key: 'asdf1',
+      label: 'asdf1-label',
+      factor: 1
+    }, {
+      key: 'asdf2',
+      label: 'asdf2-label',
+      factor: 1
+    }, {
+      key: 'asdf3',
+      label: 'asdf3-label',
+      factor: 1
+    }]
     // const mockDatas = [['key1', 'name1']]
 
     this._id = setInterval(() => {
@@ -106,8 +118,8 @@ export class MockLogDataReceiver implements iLogDataReceiver {
 
       jsonData.globalTick++
       jsonData.tickLogs = []
-      for (const [key, name] of mockDatas)
-        jsonData.tickLogs.push(generateRandomTickLog(key, name))
+      for (const { factor, key, label } of mockDatas)
+        jsonData.tickLogs.push(generateRandomTickLog(key, name, factor))
 
       this.onDataReceive?.(jsonData)
     }, this.interval)
