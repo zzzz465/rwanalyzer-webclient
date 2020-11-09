@@ -1,7 +1,7 @@
 import { ProfileLog } from './ProfileLog';
 import { TickLog } from './TickLog';
 
-interface Range {
+export interface Range {
   start: number
   end: number
 }
@@ -17,7 +17,7 @@ export class LogChunk implements Iterable<TickLog> {
   constructor(
     public readonly profileLog: ProfileLog, 
     public readonly chunkSize: number,
-    firstLog: TickLog) {
+    tickRange: Range) {
       if (chunkSize <= 0)
         throw new Error(`chunkSize is lower than 1, value: ${chunkSize}`)
 
@@ -25,9 +25,7 @@ export class LogChunk implements Iterable<TickLog> {
 
       this.hit = 0
       this.time = 0
-      this.tick = { start: firstLog.tick, end: firstLog.tick }
-
-      this.appendLog(firstLog)
+      this.tick = tickRange
   }
 
   *[Symbol.iterator](): Iterator<TickLog, void, void> {
@@ -46,7 +44,5 @@ export class LogChunk implements Iterable<TickLog> {
     this._logs.push(log)
     this.hit += log.hit
     this.time += log.time
-
-    this.tick.end = log.tick
   }
 }

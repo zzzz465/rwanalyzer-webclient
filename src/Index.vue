@@ -46,10 +46,7 @@
       .top
         h3 current setting: {{ yAxisReference }}
       BasicChart.graph(
-        :logs="logs"
-        :lastTick="logManager.currentTick"
-        :tickPerScreen="900"
-        :yAxisReference="yAxisReference"
+        :logManager="logManager"
         )
 </template>
 
@@ -79,7 +76,7 @@ export default Vue.extend({
     Tab
   },
   data () {
-    const logManager = new LogManager(900)
+    const logManager = new LogManager(1000)
 
     // const webSocketClient = new WebSocketClient()
 
@@ -104,7 +101,6 @@ export default Vue.extend({
       switch (data.type) {
         case Events.LogData: {
           logManager.processData(data)
-          returnValue.logs = [...logManager.logs.values()]
         } break
 
         case Events.InitEntries: {

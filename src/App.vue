@@ -51,7 +51,7 @@ export default Vue.extend({
       }
 
       for (let i = 0; i < 10; i++) {
-        const n = Math.floor(Math.random() * 100)
+        const n = Math.trunc(Math.random() * 100)
         const obj = {
           key: `${n} obj`,
           label: `${n} label`

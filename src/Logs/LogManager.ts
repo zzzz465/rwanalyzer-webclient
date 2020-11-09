@@ -1,32 +1,37 @@
 import { ProfileLog } from './ProfileLog'
 import { TickLog } from './TickLog'
 import { Events, LogData } from './LogDataReceiver'
+import { Range } from './LogChunk'
 
 export class LogManager {
     private _currentTick: number
     private _logLimit: number // how many logs we should store?
     private _chunkSize: number
-    public readonly logs: Map<string, ProfileLog>
+    private readonly _plogs: Map<string, ProfileLog>
+    get tickRange(): Range {
+        return {
+            start: this.currentTick - this._logLimit,
+            end: this.currentTick
+        }
+    }
+    get chunkRange(): Range {
+        return {
+            start: Math.trunc((this.currentTick - this._logLimit) / this.chunkSize),
+            end: Math.trunc(this.currentTick / this.chunkSize)
+        }
+    }
+    get profileLogs() {
+        return [...this._plogs.values()]
+    }
     get currentTick(): number {
         return this._currentTick
-    }
-    get logLimit() {
-        return this._logLimit
     }
     get chunkSize() {
         return this._chunkSize
     }
 
-    set logLimit(val: number) {
-
-    }
-
-    set chunkSize(val: number) {
-
-    }
-
-    constructor(logLimit = 500, chunkSize = 5) {
-        this.logs = new Map()
+    constructor(logLimit = 10000, chunkSize = 10) {
+        this._plogs = new Map()
         this._currentTick = 0
         this._logLimit = logLimit
         this._chunkSize = chunkSize
@@ -34,36 +39,18 @@ export class LogManager {
 
     /** call when the selection(currentEntry) is changed */
     public clearLogs() {
-        this.logs.clear()
+        this._plogs.clear()
     }
 
     public processData({ globalTick, tickLogs }: LogData) {
         this._currentTick = globalTick
-        for (const log of tickLogs)
-            this.handleData(log, globalTick)
-
-        for (const [key, profileLog] of this.logs.entries()) {
-            const last = profileLog.getLast()
-            if (last === null || globalTick - last.tick > this.logLimit)
-                this.logs.delete(key)
-        }
-    }
-
-    private handleData(log: TickLog & { label: string; key: string }, curTick: number): void {
-        const { hit, key, label, time } = log
-        if (this.logs.has(key)) {
-            const profileLog = this.logs.get(key)!
-            profileLog.appendLog(log)
-        } else {
-            const profileLog = new ProfileLog(label, key, this.logLimit, this.chunkSize)
-            profileLog.appendLog(log)
-            this.logs.set(key, profileLog)
-        }
-
-        for (const [key, profileLog] of this.logs.entries()) {
-            const last = profileLog.getLast()
-            if (!last || this.currentTick - last.tick > this.logLimit)
-                this.logs.delete(key)
+        for (const log of tickLogs) {
+            let pLog = this._plogs.get(log.key)
+            if (!pLog) {
+                pLog = new ProfileLog(log.label, log.key, this._logLimit, this.chunkSize)
+                this._plogs.set(log.key, pLog)
+            }
+            pLog.appendLog(log)
         }
     }
 }
