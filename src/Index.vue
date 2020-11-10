@@ -1,4 +1,4 @@
-<style scoped>
+<style lang="scss" scoped>
   .background {
     display: flex;
     background-color: RGB(40, 40, 40);
@@ -28,10 +28,31 @@
     overflow: scroll;
   }
   .content {
-    flex: 3;
-    background-color: RGB(50, 50, 50);
+    flex: 4;
+    background-color: #00161D;
     display: flex;
     flex-direction: column;
+
+    .border {
+      margin: 12px;
+      border: solid;
+      border-color: RGB(60, 60, 60);
+    }
+
+    .list {
+      flex: 10;
+      background-color: #151F29;
+    }
+
+    .graph {
+      flex: 6;
+      background-color: #151F29;
+    }
+
+    .tickGraph {
+      flex: 3;
+      background-color: #151F29;
+    }
   }
   .optional {
     flex: 1;
@@ -46,7 +67,13 @@
         // Tab(:name="logManager.")
       .main
         .content
-          .list
+          .list.border
+          .graph.border
+            BasicChart(
+              :logManager="logManager"
+              :range="500"
+            )
+          .tickGraph.border
         .optional
 </template>
 
@@ -97,8 +124,6 @@ export default Vue.extend({
       dataReceiver: iLog
     }
 
-    /*
-
     iLog.onDataReceive = (data) => {
       switch (data.type) {
         case Events.LogData: {
@@ -121,7 +146,7 @@ export default Vue.extend({
       }
     }
 
-    */
+    
 
     return returnValue
   },

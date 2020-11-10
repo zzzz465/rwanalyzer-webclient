@@ -1,14 +1,12 @@
-<style scoped>
-  .graphRoot {
+<style lang="scss" scoped>
+  .graph {
     width: 100%;
     height: 100%;
-    background-color: RGB(60, 60, 60);
   }
 </style>
 
 <template lang="pug">
-  .graphRoot
-    .graph(ref="graph")
+  .graph(ref="graph")
 </template>
 
 <script lang="ts">
@@ -21,6 +19,7 @@ import { LogChunk, Range } from '@/Logs/LogChunk'
 import { AsEnumerable } from 'linq-es2015'
 import { LogManager } from '@/Logs/LogManager'
 import { line, scaleQuantize } from 'd3'
+import { ResizeObserver } from '@juggle/resize-observer'
 
 export default Vue.extend({
   props: {
@@ -43,7 +42,7 @@ export default Vue.extend({
     yAxisReference () {
       this.paths.selectAll('path')
         .remove()
-    }
+    },
   },
 
   computed: {
@@ -51,8 +50,8 @@ export default Vue.extend({
 
   data () {
     const svg = d3.create('svg')
-      .attr('width', 1920)
-      .attr('height', 720)
+      .attr('width', 0)
+      .attr('height', 0)
 
     svg.node()
 
@@ -107,13 +106,34 @@ export default Vue.extend({
       circle,
       mousePos: [0, 0] as number[],
       isHover: false,
-      frameCounter: 0
+      frameCounter: 0,
+      rootRectSize: [0, 0], // [width, height]
     }
   },
 
   mounted () {
-    const svgNode = this.svg.node()!;
-    (this.$refs.graph as HTMLDivElement).append(svgNode)
+    const svgNode = this.svg.node()!
+    const rootNode = this.$refs.graph as HTMLDivElement
+    rootNode.append(svgNode)
+
+    this.rootRectSize = [rootNode.offsetWidth, rootNode.offsetHeight]
+    this.svg
+      .attr('width', this.rootRectSize[0])
+      .attr('height', this.rootRectSize[1])
+
+    // const ro = new ResizeObserver(e => {
+      // e.forEach(entry => {
+        // const { width, height } = entry.contentRect
+        // this.rootRectSize = [width, height]
+        // this.svg
+          // .attr('width', width)
+          // .attr('height', height - 5)
+        // console.log(`width: ${width}, height: ${height}`)
+        // console.log(entry)
+      // })
+    // })
+
+    // ro.observe(rootNode)
 
     setInterval(() => {
       this.updateGraph()
@@ -125,16 +145,6 @@ export default Vue.extend({
       this.frameCounter = 0
     }, 1000 * size)
 
-    /*
-    this.rect
-      .on('mouseover', (event) => {
-        console.log('mouseover')
-      })
-      .on('mousemove', (event) => {
-        console.log('mousemove')
-      })
-*/
-
     this.rect
       .on('mouseover', (event) => this.mouseover(event))
       .on('mousemove', (event) => this.mousemove(event))
@@ -145,6 +155,16 @@ export default Vue.extend({
     getColor: d3.scaleOrdinal(d3.schemeSet3),
 
     updateGraph () {
+      const [width, height] = this.rootRectSize
+      const margin = 40
+
+      this.xAxis
+        .attr('transform', `translate(${0}, ${height - margin / 2})`)
+
+      this.yAxis
+        .attr('transform', `translate(${margin}, ${0})`)
+
+
       const logManager = this.logManager
 
       const range: Range = {
@@ -184,7 +204,7 @@ export default Vue.extend({
         const domain = [range.start, range.end]
         return d3.scaleLinear()
           .domain(domain)
-          .range([30, 1250])
+          .range([margin, width - margin])
       })()
 
       // make y function
@@ -193,7 +213,7 @@ export default Vue.extend({
 
         return d3.scaleLinear()
           .domain([0, max]).nice()
-          .range([690, 30])
+          .range([height - margin, margin])
       })()
 
       // draw x axis
