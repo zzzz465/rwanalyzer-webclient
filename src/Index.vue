@@ -77,7 +77,7 @@ export default Vue.extend({
     Tab
   },
   data () {
-    const logManager = new LogManager(1000)
+    const logManager = new LogManager(1000, 3)
 
     // const webSocketClient = new WebSocketClient()
 

@@ -192,7 +192,7 @@ export default Vue.extend({
 
         return d3.scaleLinear()
           .domain([0, max]).nice()
-          .range([30, 690])
+          .range([690, 30])
       })()
 
       // draw x axis
@@ -205,7 +205,7 @@ export default Vue.extend({
       const line = d3.line<LogChunk>()
         // .curve(d3.curveBasis) // give line curve
         .x((d, i) => x(d.tick.start)!)
-        .y(d => this.getYValue(d))
+        .y(d => y(this.getYValue(d))!)
 
       // draw path
       const drawedPaths = this.paths
@@ -240,18 +240,15 @@ export default Vue.extend({
           }
         }
 
-        console.log(yVal)
-        console.log(matchedLogs.map(d => d.selectedChunk.hit))
-
         const least = d3_array.least(matchedLogs, d => Math.abs(yVal - this.getYValue(d.selectedChunk)))
         if (least) {
           drawedPaths
-            .attr('stroke', d => d.key === least.profileLog.key ? null : '#ddd')
+            .attr('stroke', d => d.key === least.profileLog.key ? '#ff0000' : '#ffffff1f')
             .filter(d => d.key === least.profileLog.key).raise()
 
           this.circle
             .attr('cx', x(least.selectedChunk.tick.start)!)
-            .attr('cy', this.getYValue(least.selectedChunk)!)
+            .attr('cy', y(this.getYValue(least.selectedChunk))!)
         }
       }
 
