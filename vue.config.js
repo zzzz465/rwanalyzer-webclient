@@ -6,5 +6,6 @@ module.exports = {
   configureWebpack: {
     devtool: 'source-map'
   },
-  outputDir: 'docs'
+  outputDir: 'docs',
+  publicPath: '/rwanalyzer-webclient/'
 }
