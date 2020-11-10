@@ -11,6 +11,7 @@ export interface LogData {
   type: Events.LogData
   tickLogs: (TickLog & { label: string; key: string })[]
   globalTick: number
+  totalTime: number // spent time for this one tick (usually < 2 ms)
 }
 
 export interface ToggleGameState {
@@ -83,6 +84,7 @@ export class MockLogDataReceiver implements iLogDataReceiver {
     const jsonData: LogData = {
       type: Events.LogData,
       globalTick: 0,
+      totalTime: 0,
       tickLogs: []
     }
 
@@ -120,6 +122,8 @@ export class MockLogDataReceiver implements iLogDataReceiver {
       jsonData.tickLogs = []
       for (const { factor, key, label } of mockDatas)
         jsonData.tickLogs.push(generateRandomTickLog(key, name, factor))
+
+      jsonData.totalTime = Math.random() // 0 ~ 1
 
       this.onDataReceive?.(jsonData)
     }, this.interval)
