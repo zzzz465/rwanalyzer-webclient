@@ -79,14 +79,14 @@ export default Vue.extend({
   data () {
     const logManager = new LogManager(1000, 3)
 
-    // const webSocketClient = new WebSocketClient()
+    const webSocketClient = new WebSocketClient()
 
-    const mockLogDataReceiver = new MockLogDataReceiver(10)
+    // const mockLogDataReceiver = new MockLogDataReceiver(10)
 
     // change this
-    // const iLog: iLogDataReceiver = webSocketClient
-    const iLog: iLogDataReceiver = mockLogDataReceiver
-    mockLogDataReceiver.Start()
+    const iLog: iLogDataReceiver = webSocketClient
+    // const iLog: iLogDataReceiver = mockLogDataReceiver
+    // mockLogDataReceiver.Start()
 
     const returnValue = {
       logManager,
