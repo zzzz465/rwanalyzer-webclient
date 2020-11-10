@@ -20,7 +20,7 @@ import { TickLog } from '@/Logs/TickLog'
 import { LogChunk, Range } from '@/Logs/LogChunk'
 import { AsEnumerable } from 'linq-es2015'
 import { LogManager } from '@/Logs/LogManager'
-import { line } from 'd3'
+import { line, scaleQuantize } from 'd3'
 
 export default Vue.extend({
   props: {
@@ -119,10 +119,11 @@ export default Vue.extend({
       this.updateGraph()
     }, 1000 / 80)
 
+    const size = 5
     setInterval(() => {
-      console.log(`framerate: ${this.frameCounter}`)
+      console.log(`framerate: ${this.frameCounter / size}`)
       this.frameCounter = 0
-    }, 1000)
+    }, 1000 * size)
 
     /*
     this.rect

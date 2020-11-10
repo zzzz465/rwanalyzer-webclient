@@ -1,14 +1,25 @@
 <style scoped>
+  .background {
+    display: flex;
+    background-color: RGB(40, 40, 40);
+    height: 100vh;
+    width: 100vw;
+    align-items: center;
+    justify-content: center;
+  }
   .root {
     display: flex;
-    /* background-color: gray; */
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 40px;
-    height: 1050px;
+    background-color: RGB(100, 100, 100);
+    width: 95%;
+    height: 90%;
   }
   .left {
     flex: 1;
+    background-color: RGB(80, 80, 80);
+  }
+  .main {
+    flex: 6;
+    display: flex;
   }
   .tab {
     width: 100%;
@@ -16,39 +27,27 @@
     max-height: 100%;
     overflow: scroll;
   }
-  .right {
-    margin-left: 20px;
-    flex: 6;
-    /* background-color: yellow; */
+  .content {
+    flex: 3;
+    background-color: RGB(50, 50, 50);
     display: flex;
     flex-direction: column;
   }
-  .top {
-    flex: 3
-  }
-  .graph {
-    flex: 7;
+  .optional {
+    flex: 1;
+    background-color: RGB(120, 120, 120);
   }
 </style>
 
 <template lang="pug">
-  .root
-    .left
-      Tab.tab(
-        :items="tabs"
-        :currentEntry="currentEntry"
-      )
-    .right
-      .top
-        v-btn(@click="yAxisReference = 'hit'") change to hit
-        v-btn(@click="yAxisReference = 'time'") change to time
-        v-btn(@click="toggleTick") toggle Tick
-      .top
-        h3 current setting: {{ yAxisReference }}
-      BasicChart.graph(
-        :logManager="logManager"
-        :yAxisReference="yAxisReference"
-        )
+  .background
+    .root
+      .left
+        // Tab(:name="logManager.")
+      .main
+        .content
+          .list
+        .optional
 </template>
 
 <script lang="ts">
@@ -79,14 +78,14 @@ export default Vue.extend({
   data () {
     const logManager = new LogManager(1000, 3)
 
-    const webSocketClient = new WebSocketClient()
+    // const webSocketClient = new WebSocketClient()
 
-    // const mockLogDataReceiver = new MockLogDataReceiver(10)
+    const mockLogDataReceiver = new MockLogDataReceiver(10)
 
     // change this
-    const iLog: iLogDataReceiver = webSocketClient
-    // const iLog: iLogDataReceiver = mockLogDataReceiver
-    // mockLogDataReceiver.Start()
+    // const iLog: iLogDataReceiver = webSocketClient
+    const iLog: iLogDataReceiver = mockLogDataReceiver
+    mockLogDataReceiver.Start()
 
     const returnValue = {
       logManager,
@@ -97,6 +96,8 @@ export default Vue.extend({
       yAxisReference: 'avgTime',
       dataReceiver: iLog
     }
+
+    /*
 
     iLog.onDataReceive = (data) => {
       switch (data.type) {
@@ -119,6 +120,8 @@ export default Vue.extend({
         } break
       }
     }
+
+    */
 
     return returnValue
   },
