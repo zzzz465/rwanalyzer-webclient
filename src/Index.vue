@@ -114,14 +114,14 @@ export default Vue.extend({
     const logManager = new LogManager(logLimit, chunkSize)
     const tpsLogManager = new TPSLogManager(logLimit, chunkSize)
 
-    // const webSocketClient = new WebSocketClient()
+    const webSocketClient = new WebSocketClient()
 
-    const mockLogDataReceiver = new MockLogDataReceiver(10)
+    // const mockLogDataReceiver = new MockLogDataReceiver(10)
 
     // change this
-    // const iLog: iLogDataReceiver = webSocketClient
-    const iLog: iLogDataReceiver = mockLogDataReceiver
-    mockLogDataReceiver.Start()
+    const iLog: iLogDataReceiver = webSocketClient
+    // const iLog: iLogDataReceiver = mockLogDataReceiver
+    // mockLogDataReceiver.Start()
 
     const returnValue = {
       logManager,
