@@ -64,7 +64,7 @@ export class TPSLogManager {
     this.queueSize = Math.trunc(logLimit / chunkSize)
   }
 
-  appendLog({ globalTick, tickLogs, totalTime }: LogData) {
+  processData({ globalTick, tickLogs, totalTime }: LogData) {
     const totalTimeOfWatchedLogs = tickLogs.reduce((prev, val) => (prev + val.time), 0)
 
     let last = this._logChunks.pop()

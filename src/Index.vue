@@ -74,6 +74,9 @@
               :range="500"
             )
           .tickGraph.border
+            TPSChart(
+              :tpsLogManager="tpsLogManager"
+            )
         .optional
 </template>
 
@@ -81,10 +84,12 @@
 import Vue from 'vue'
 import BasicChart from './components/BasicChart.vue'
 import Tab from './components/Tab/TabContainer.vue'
+import TPSChart from './components/TPSChart.vue'
 import { AsEnumerable } from 'linq-es2015'
 import { LogManager } from './Logs/LogManager'
 import { Events, WebSocketClient, MockLogDataReceiver, iLogDataReceiver } from './Logs/LogDataReceiver'
 import { ProfileLog } from './Logs/ProfileLog'
+import { TPSLogManager } from './Logs/TPSLog'
 import Deque from 'double-ended-queue'
 import * as d3 from 'd3'
 
@@ -100,10 +105,14 @@ interface Entry {
 export default Vue.extend({
   components: {
     BasicChart,
+    TPSChart,
     Tab
   },
   data () {
-    const logManager = new LogManager(1000, 3)
+    const logLimit = 1000
+    const chunkSize = 3
+    const logManager = new LogManager(logLimit, chunkSize)
+    const tpsLogManager = new TPSLogManager(logLimit, chunkSize)
 
     // const webSocketClient = new WebSocketClient()
 
@@ -116,6 +125,7 @@ export default Vue.extend({
 
     const returnValue = {
       logManager,
+      tpsLogManager,
       tick: 0,
       tabs: new Map<string, Set<string>>(),
       currentEntry: '',
@@ -128,6 +138,7 @@ export default Vue.extend({
       switch (data.type) {
         case Events.LogData: {
           logManager.processData(data)
+          tpsLogManager.processData(data)
         } break
 
         case Events.InitEntries: {
@@ -145,8 +156,6 @@ export default Vue.extend({
         } break
       }
     }
-
-    
 
     return returnValue
   },
