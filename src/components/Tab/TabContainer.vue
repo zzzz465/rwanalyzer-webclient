@@ -1,14 +1,21 @@
-<style>
+<style scoped>
   .tabs {
-    background-color: RGB(200, 200, 200);
+    width: 100%;
+    height: 100%;
     overflow: scroll;
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+
+  .tabs::-webkit-scrollbar {
+    display: none;
   }
 </style>
 
 <template lang="pug">
   .tabs
     div(v-for="[key, set] in items.entries()")
-      Tab(
+      Tab.tab(
         :name="key"
         :set="set"
         :currentEntry="currentEntry"
@@ -27,7 +34,6 @@ export default Vue.extend({
     items: {
       type: Map,
       required: true,
-      default: () => new Map<string, Set<string>>()
     },
     currentEntry: {
       type: String,

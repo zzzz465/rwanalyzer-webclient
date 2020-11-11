@@ -15,7 +15,7 @@
   }
   .left {
     flex: 1;
-    background-color: RGB(80, 80, 80);
+    background-color:  #151F29;
   }
   .main {
     flex: 6;
@@ -64,7 +64,7 @@
   .background
     .root
       .left
-        // Tab(:name="logManager.")
+        Tab(:items="entries")
       .main
         .content
           .list.border
@@ -129,6 +129,7 @@ export default Vue.extend({
       tick: 0,
       tabs: new Map<string, Set<string>>(),
       currentEntry: '',
+      entries: new Map<string, Set<string>>(),
       logs: [] as ProfileLog[],
       yAxisReference: 'avgTime',
       dataReceiver: iLog
@@ -145,6 +146,7 @@ export default Vue.extend({
           const result = AsEnumerable(data.entries)
             .GroupBy(d => d.category, v => v.name)
             .ToMap(d => d.key, v => new Set<string>(v))
+          returnValue.entries = result
         } break
 
         case Events.EntryAdded: {
