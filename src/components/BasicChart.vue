@@ -1,4 +1,4 @@
-<style lang="scss" scoped>
+<style lang="less" scoped>
   .graph {
     width: 100%;
     height: 100%;
@@ -217,7 +217,7 @@ export default Vue.extend({
       })()
 
       // draw x axis
-      this.xAxis.call(d3.axisTop(x))
+      this.xAxis.call(d3.axisTop(x).tickValues([]))
 
       // draw y axis
       this.yAxis.call(d3.axisLeft(y))

@@ -1,4 +1,4 @@
-<style lang="scss" scoped>
+<style lang="less" scoped>
   .background {
     display: flex;
     background-color: RGB(40, 40, 40);
@@ -9,7 +9,6 @@
   }
   .root {
     display: flex;
-    background-color: RGB(100, 100, 100);
     width: 95%;
     height: 90%;
   }
@@ -42,6 +41,7 @@
     .list {
       flex: 10;
       background-color: #151F29;
+      overflow: auto;
     }
 
     .graph {
@@ -64,10 +64,13 @@
   .background
     .root
       .left
-        Tab(:items="entries")
+        Tab(:items="entries" :currentEntry="currentEntry")
       .main
         .content
           .list.border
+            ProfileTable(
+              :logManager="logManager"
+            )
           .graph.border
             BasicChart(
               :logManager="logManager"
@@ -84,6 +87,7 @@
 import Vue from 'vue'
 import BasicChart from './components/BasicChart.vue'
 import Tab from './components/Tab/TabContainer.vue'
+import ProfileTable from './components/ProfileTable.vue'
 import TPSChart from './components/TPSChart.vue'
 import { AsEnumerable } from 'linq-es2015'
 import { LogManager } from './Logs/LogManager'
@@ -106,7 +110,8 @@ export default Vue.extend({
   components: {
     BasicChart,
     TPSChart,
-    Tab
+    Tab,
+    ProfileTable
   },
   data () {
     const logLimit = 1000

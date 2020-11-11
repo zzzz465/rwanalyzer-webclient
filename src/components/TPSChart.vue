@@ -140,7 +140,7 @@ export default Vue.extend({
         .domain([0, 1]).nice()
         .range([height - margin, margin])
 
-      this.xAxis.call(d3.axisTop(x))
+      this.xAxis.call(d3.axisTop(x).tickValues([]))
       this.yAxis.call(d3.axisLeft(y).ticks(1))
 
       const area = d3.area<TPSLogChunk>()
