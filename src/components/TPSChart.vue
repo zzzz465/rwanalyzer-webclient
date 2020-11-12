@@ -1,14 +1,14 @@
-<style>
+<style scoped>
   .graph {
     width: 100%;
     height: 100%;
   }
-  .tpsPath {
+  ::v-deep .tpsPath {
     fill: none;
     stroke: white;
     stroke-width: 2;
   }
-  .area {
+  ::v-deep .area {
     fill: url(#area_gradient);
   }
 </style>
@@ -54,11 +54,8 @@ export default Vue.extend({
     const tpsPath = svg.append('path')
       .attr('class', 'tpsPath')
       // .attr('fill', 'none')
-      // .attr('stroke', 'steelblue')
-      // .attr('stroke-width', 1.5)
-      // .attr('stroke-linejoin', 'round')
-      // .attr('stroke-linecap', 'round')
-      // .attr('stroke', '#dddddd')
+      // .attr('stroke-width', '2')
+      // .attr('stroke', 'white')
 
     const area = svg.append('path')
       .attr('class', 'area')

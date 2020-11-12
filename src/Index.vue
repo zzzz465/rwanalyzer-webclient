@@ -87,6 +87,7 @@
             BasicChart(
               :logManager="logManager"
               :range="500"
+              :selection="selectedEntries"
             )
           .tickGraph.border
             TPSChart(

@@ -5,7 +5,8 @@
   }
 </style>
 
-<template lang="pug"> .graph(ref="graph")
+<template lang="pug">
+  .graph(ref="graph")
 </template>
 
 <script lang="ts">
@@ -20,6 +21,7 @@ import { LogManager } from '@/Logs/LogManager'
 import { line, scaleQuantize } from 'd3'
 import { ResizeObserver } from '@juggle/resize-observer'
 import { clearIntervals } from '@/Utils/interval'
+import { PropType } from 'vue'
 
 export default Vue.extend({
   props: {
@@ -35,6 +37,11 @@ export default Vue.extend({
     range: { // show how many ticks?
       type: Number,
       default: 300
+    },
+
+    selection: {
+      type: Set as PropType<Set<string>>, // Set<string>
+      required: true
     }
   },
 
@@ -175,9 +182,12 @@ export default Vue.extend({
         end: Math.trunc((logManager.currentTick - logManager.chunkSize))
       }
 
+      const selectedLogs = AsEnumerable(this.logManager.profileLogs)
+        .Where(pLog => this.selection.has(pLog.key))
+
       // performance warning
-      const filteredLogs = this.logManager.profileLogs
-        .map(pLog => {
+      const filteredLogs = selectedLogs
+        .Select(pLog => {
           const filtered = AsEnumerable(pLog.chunks)
             .Where(c => range.start <= c.tick.start && c.tick.end <= range.end)
             .ToArray()
@@ -188,15 +198,14 @@ export default Vue.extend({
             filteredChunks: filtered
           }
         })
+        .ToArray()
 
       const pLogs = filteredLogs
 
-      if (pLogs.length <= 0) {
+      if (pLogs.length <= 0)
         this.paths
           .selectAll('path')
           .remove()
-        return
-      }
 
       // performance warning
       const flattenChunks = AsEnumerable(filteredLogs)
@@ -280,6 +289,8 @@ export default Vue.extend({
             .attr('cy', y(this.getYValue(least.selectedChunk))!)
         }
       }
+
+      
 
       this.frameCounter++
     },
