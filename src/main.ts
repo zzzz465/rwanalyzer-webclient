@@ -2,10 +2,12 @@ import Vue from 'vue'
 import index from './Index.vue'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
+import ElementUI from 'element-ui'
 
 Vue.config.productionTip = false
 
 Vue.use(Vuetify)
+Vue.use(ElementUI)
 
 const vuetifyOptions = {}
 

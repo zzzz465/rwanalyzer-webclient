@@ -63,7 +63,7 @@
       flex: 5;
     }
     .control-panel {
-      flex: 4;
+      flex: 2;
     }
     .FPSTPS {
       margin: 12px;
@@ -84,6 +84,7 @@
             ProfileTable(
               :logManager="logManager"
               :selected="selectedEntries"
+              @nameSelected="requestRichInfo"
             )
           .graph.border
             BasicChart(
@@ -98,6 +99,7 @@
             )
         .optional
           .information-panel
+            RichInfoViewer(:richInfo="richInfo")
           .control-panel
           .FPSTPS.border
             FPSTPSChart(
@@ -112,9 +114,10 @@ import Tab from './components/Tab/TabContainer.vue'
 import ProfileTable from './components/ProfileTable.vue'
 import TPSChart from './components/TPSChart.vue'
 import FPSTPSChart from './components/FPSTPSChart.vue'
+import RichInfoViewer from './components/RichInfoViewer.vue'
 import { AsEnumerable } from 'linq-es2015'
 import { LogManager } from './Logs/LogManager'
-import { Events, WebSocketClient, MockLogDataReceiver, iLogDataReceiver } from './Logs/LogDataReceiver'
+import { Events, WebSocketClient, MockLogDataReceiver, iLogDataReceiver, GeneralInformation } from './Logs/LogDataReceiver'
 import { ProfileLog } from './Logs/ProfileLog'
 import { TPSLogManager } from './Logs/TPSLog'
 import Deque from 'double-ended-queue'
@@ -136,7 +139,8 @@ export default Vue.extend({
     TPSChart,
     Tab,
     ProfileTable,
-    FPSTPSChart
+    FPSTPSChart,
+    RichInfoViewer
   },
   data () {
     const logLimit = 1000
@@ -167,6 +171,7 @@ export default Vue.extend({
       logs: [] as ProfileLog[],
       yAxisReference: 'avgTime',
       dataReceiver: iLog,
+      richInfo: {} as GeneralInformation,
       selectedEntries
     }
 
@@ -198,6 +203,11 @@ export default Vue.extend({
         case Events.FPSTPS: {
           fpstpsLogManager.appendLog(data)
         } break
+
+        case Events.RichInfoRespond: {
+          console.log(data)
+          returnValue.richInfo = data.Data
+        } break
       }
     }
 
@@ -212,6 +222,13 @@ export default Vue.extend({
     toggleTick () {
       this.dataReceiver.sendMessage({
         type: Events.toggleTickState
+      })
+    },
+
+    requestRichInfo(log: ProfileLog): void {
+      this.dataReceiver.sendMessage({
+        type: Events.RichInfoRequest,
+        key: log.key
       })
     }
   }

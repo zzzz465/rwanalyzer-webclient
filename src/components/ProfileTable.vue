@@ -63,12 +63,16 @@
     flex: 7;
     overflow: hidden;
   }
+  .check-box {
+    flex: 0.5;
+  }
 </style>
 
 <template lang="pug">
   .root-ProfileTable
     .table
       .header
+        .col.check-box selection
         .col Average
         .col Percent
         .col Total
@@ -78,14 +82,14 @@
       .content
         div(
           v-for="log in profileLogs"
-          @click="onClickRow(log)"
         )
           .row(v-bind:class="{ selected: selected.has(log.key) }")
+            .col.check-box(@click="onClickRow(log)")
             .col.average {{ log.average | number }}
             .col.percent NULL
             .col.total {{ log.total | number }}
             .col.hits {{ log.hits }}
-            .col.large-col {{ log.label }}
+            .col.large-col(@click="onNameSelected(log)") {{ log.label }}
           .divider
 </template>
 
@@ -144,6 +148,10 @@ export default Vue.extend({
   methods: {
     updateValues () {
       this.profileLogs = this.logManager.profileLogs.sort(d => d.average)
+    },
+
+    onNameSelected (row: ProfileLog): void {
+      this.$emit('nameSelected', row)
     },
 
     onClickRow (row: ProfileLog): void {
