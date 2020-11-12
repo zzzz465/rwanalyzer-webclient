@@ -7,6 +7,8 @@ export type JsonData =
   | EntrySwapped
   | ToggleGameState
   | FPSTPS
+  | RichInfoRequest
+  | RichInfoRespond
 
 export interface LogData {
   type: Events.LogData
@@ -45,13 +47,35 @@ export interface FPSTPS {
   fps: number
 }
 
+export interface RichInfoRequest {
+  type: Events.RichInfoRequest,
+  key: string
+}
+
+export interface GeneralInformation {
+  modName: string
+  assemblyName: string
+  methodName: string
+  typeName: string
+  patchType: string
+  patches: GeneralInformation[]
+}
+
+export interface RichInfoRespond {
+  type: Events.RichInfoRespond
+  errorCode: 'Undefined' | 'None' | 'NotExist'
+  Data: GeneralInformation
+}
+
 export const enum Events {
   LogData = 'LogData',
   InitEntries = 'InitEntries',
   EntryAdded = 'EntryAdded',
   EntrySwapped = 'EntrySwapped',
   toggleTickState = 'ToggleGameState',
-  FPSTPS = 'FPSTPS'
+  FPSTPS = 'FPSTPS',
+  RichInfoRequest = 'RichInfoRequest',
+  RichInfoRespond = 'RichInfoRespond'
 }
 
 interface eventHandler<T> {
