@@ -20,7 +20,8 @@ module.exports = {
     '@typescript-eslint/member-delimiter-style': 'off',
     'indent': 2,
     '@typescript-eslint/no-empty-function' : 'off',
-    'no-lone-blocks': 'off'
+    'no-lone-blocks': 'off',
+    'curly': ['warn', 'multi', 'consistent']
   },
   overrides: [
     {

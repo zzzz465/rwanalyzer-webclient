@@ -174,6 +174,8 @@ export default Vue.extend({
         start: Math.trunc((logManager.currentTick - this.range)),
         end: Math.trunc((logManager.currentTick - logManager.chunkSize))
       }
+
+      // performance warning
       const filteredLogs = this.logManager.profileLogs
         .map(pLog => {
           const filtered = AsEnumerable(pLog.chunks)
@@ -196,6 +198,7 @@ export default Vue.extend({
         return
       }
 
+      // performance warning
       const flattenChunks = AsEnumerable(filteredLogs)
         .Select(c => c.filteredChunks)
         .SelectMany(c => c)
@@ -219,6 +222,7 @@ export default Vue.extend({
           .range([height - margin, margin])
       })()
 
+      // also performance warning?
       // draw x axis
       this.xAxis.call(d3.axisTop(x).tickValues([]))
 
@@ -231,6 +235,7 @@ export default Vue.extend({
         .x((d, i) => x(d.tick.start)!)
         .y(d => y(this.getYValue(d))!)
 
+      // huge performance warning
       // draw path
       const drawedPaths = this.paths
         .selectAll('path')

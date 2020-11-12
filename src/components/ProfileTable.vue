@@ -42,6 +42,10 @@
     display: flex;
     flex-grow: 0;
     margin: 0;
+    cursor: pointer;
+  }
+  .selected {
+    background-color: blue;
   }
   .col {
     flex: 1;
@@ -64,7 +68,11 @@
         .col.large-col Name
       .divider
       .content
-        div.row(v-for="log in profileLogs")
+        div.row(
+          v-for="log in profileLogs"
+          @click="onClickRow(log)"
+          v-bind:class="{ selected: selected.has(log.key) }"
+        )
           .col.average {{ log.average | number }}
           .col.percent NULL
           .col.total {{ log.total | number }}
@@ -82,9 +90,18 @@ import { clearIntervals } from '@/Utils/interval'
 // 현재 기록되는 아이템들을 보여줌
 
 export default Vue.extend({
+  model: {
+    prop: 'selected',
+    event: 'selectionChange'
+  },
+
   props: {
     logManager: {
       type: LogManager,
+      required: true
+    },
+    selected: { // Set<string>
+      type: Set,
       required: true
     }
   },
@@ -118,13 +135,16 @@ export default Vue.extend({
   methods: {
     updateValues () {
       this.profileLogs = this.logManager.profileLogs.sort(d => d.average)
-      // const contentDiv = this.$refs.content as HTMLDivElement
-      // const profileLogs = this.logManager.profileLogs
-      //
-      // d3.select(contentDiv)
-      // .selectAll<HTMLDivElement, ProfileLog>('div')
-      // .data(profileLogs, d => d.key)
-      // .join('div')
+    },
+
+    onClickRow (row: ProfileLog): void {
+      const key = row.key
+      if (this.selected.has(key))
+        this.selected.delete(key)
+      else
+        this.selected.add(key)
+
+      this.$emit('selectionChange')
     }
   }
 })

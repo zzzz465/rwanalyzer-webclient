@@ -81,6 +81,7 @@
           .list.border
             ProfileTable(
               :logManager="logManager"
+              :selected="selectedEntries"
             )
           .graph.border
             BasicChart(
@@ -148,6 +149,7 @@ export default Vue.extend({
     // mockLogDataReceiver.Start()
 
     const fpstpsLogManager = new FPSTPSManager()
+    const selectedEntries = new Set<string>()
 
     const returnValue = {
       logManager,
@@ -159,7 +161,8 @@ export default Vue.extend({
       entries: new Map<string, Set<string>>(),
       logs: [] as ProfileLog[],
       yAxisReference: 'avgTime',
-      dataReceiver: iLog
+      dataReceiver: iLog,
+      selectedEntries
     }
 
     iLog.onDataReceive = (data) => {
