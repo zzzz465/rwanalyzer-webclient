@@ -64,14 +64,15 @@ export default Vue.extend({
 
     const area_gradient = defs.append('linearGradient')
       .attr('id', 'area_gradient')
-      .attr('x1', '0%')
-      .attr('x2', '0%')
-      .attr('y1', '0%')
-      .attr('y2', '100%')
+      .attr('gradientUnits', 'userSpaceOnUse')
+      .attr('x1', '0')
+      .attr('x2', '0')
+      .attr('y1', '100')
+      .attr('y2', '0')
       .selectAll('stop')
       .data([
-        { offset: '0%', color: 'green' },
-        { offset: '100%', color: 'red' }
+        { offset: '0', color: 'green' },
+        { offset: '100', color: 'red' }
       ])
       .enter().append('stop')
       .attr('offset', d => d.offset)
@@ -149,6 +150,8 @@ export default Vue.extend({
       const area = d3.area<TPSLogChunk>()
         .x(d => x(d.tickRange.start)!)
         .y0(y(0)!)
+        // .y1(d => y(1)!)
+        // .y(d => y(d.percentage)!)
         .y1(d => y(d.percentage)!)
 
       const line = d3.line<TPSLogChunk>()
