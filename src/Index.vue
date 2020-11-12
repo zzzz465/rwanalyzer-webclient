@@ -58,16 +58,18 @@
     display: flex;
     flex-direction: column;
     background-color:  #00161D;
-  }
-  .information-panel {
-    flex: 5;
-  }
-  .control-panel {
-    flex: 4;
-  }
-  .FPSTPS {
-    flex: 2;
-    background-color: #151F29;
+
+    .information-panel {
+      flex: 5;
+    }
+    .control-panel {
+      flex: 4;
+    }
+    .FPSTPS {
+      margin: 12px;
+      flex: 2;
+      background-color: #151F29;
+    }
   }
 </style>
 
@@ -92,13 +94,15 @@
           .tickGraph.border
             TPSChart(
               :tpsLogManager="tpsLogManager"
+              :range="500"
             )
         .optional
           .information-panel
           .control-panel
-          FPSTPSChart.FPSTPS.border(
-            :logManager="fpstpsLogManager"
-          )
+          .FPSTPS.border
+            FPSTPSChart(
+              :logManager="fpstpsLogManager"
+            )
 </template>
 
 <script lang="ts">
