@@ -44,6 +44,14 @@
     margin: 0;
     cursor: pointer;
   }
+  .divider {
+    width: 95%;
+    height: 2px;
+    margin: 4px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: RGB(80, 80, 80);
+  }
   .selected {
     background-color: blue;
   }
@@ -68,16 +76,17 @@
         .col.large-col Name
       .divider
       .content
-        div.row(
+        div(
           v-for="log in profileLogs"
           @click="onClickRow(log)"
-          v-bind:class="{ selected: selected.has(log.key) }"
         )
-          .col.average {{ log.average | number }}
-          .col.percent NULL
-          .col.total {{ log.total | number }}
-          .col.hits {{ log.hits }}
-          .col.large-col {{ log.label }}
+          .row(v-bind:class="{ selected: selected.has(log.key) }")
+            .col.average {{ log.average | number }}
+            .col.percent NULL
+            .col.total {{ log.total | number }}
+            .col.hits {{ log.hits }}
+            .col.large-col {{ log.label }}
+          .divider
 </template>
 
 <script lang="ts">
