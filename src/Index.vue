@@ -73,8 +73,21 @@
   }
 </style>
 
+<style>
+  .el-loading-text {
+    /* color: blue !important; */
+    font-size: 15px !important;
+  }
+</style>
+
 <template lang="pug">
-  .background
+  .background(
+    v-loading.fullscreen.lock="connection.connecting"
+    element-loading-background="rgba(0, 0, 0, 0.88)"
+    element-loading-spinner="el-icon-loading"
+    :element-loading-text="connectionText"
+    customClass="loadingScreen"
+  )
     .root
       .left
         Tab(:items="entries" :currentEntry="currentEntry")
@@ -153,7 +166,8 @@ export default Vue.extend({
     // const mockLogDataReceiver = new MockLogDataReceiver(10)
 
     // change this
-    const iLog: iLogDataReceiver = webSocketClient
+
+    // const iLog: iLogDataReceiver = webSocketClient
     // const iLog: iLogDataReceiver = mockLogDataReceiver
     // mockLogDataReceiver.Start()
 
@@ -170,12 +184,16 @@ export default Vue.extend({
       entries: new Map<string, Set<string>>(),
       logs: [] as ProfileLog[],
       yAxisReference: 'avgTime',
-      dataReceiver: iLog,
+      socketClient: webSocketClient,
       richInfo: {} as GeneralInformation,
-      selectedEntries
+      selectedEntries,
+      connection: {
+        connecting: true,
+        retryCount: 0
+      }
     }
 
-    iLog.onDataReceive = (data) => {
+    webSocketClient.onDataReceive = (data) => {
       switch (data.type) {
         case Events.LogData: {
           logManager.processData(data)
@@ -214,22 +232,55 @@ export default Vue.extend({
     return returnValue
   },
 
+  watch: {
+    'socketClient._status'(value: 'connected' | 'connecting' | 'disconnected'): void {
+      switch (value) {
+        case 'connected':
+          this.connection.connecting = false
+          this.connection.retryCount = -1
+          break
+
+        case 'connecting':
+          this.connection.connecting = true
+          break
+
+        case 'disconnected':
+          this.connection.connecting = false
+          this.connection.retryCount += 1
+          this.socketClient.reconnect()
+          break
+      }
+    }
+  },
+
   computed: {
+    connectionText (): string {
+      const texts = ['connecting to local server...']
+      if (this.connection.retryCount > 0)
+        texts.push(`retry count: ${this.connection.retryCount}`)
+
+      return texts.join('\n')
+    }
   },
   mounted () {
+
   },
   methods: {
     toggleTick () {
-      this.dataReceiver.sendMessage({
+      this.socketClient.sendMessage({
         type: Events.toggleTickState
       })
     },
 
     requestRichInfo(log: ProfileLog): void {
-      this.dataReceiver.sendMessage({
+      this.socketClient.sendMessage({
         type: Events.RichInfoRequest,
         key: log.key
       })
+    },
+
+    showLoadingScreen (): void {
+
     }
   }
 })

@@ -42,6 +42,8 @@
     display: flex;
     flex-grow: 0;
     margin: 0;
+  }
+  .click {
     cursor: pointer;
   }
   .divider {
@@ -84,12 +86,12 @@
           v-for="log in profileLogs"
         )
           .row(v-bind:class="{ selected: selected.has(log.key) }")
-            .col.check-box(@click="onClickRow(log)")
+            .col.check-box.click(@click="onClickRow(log)")
             .col.average {{ log.average | number }}
             .col.percent NULL
             .col.total {{ log.total | number }}
             .col.hits {{ log.hits }}
-            .col.large-col(@click="onNameSelected(log)") {{ log.label }}
+            .col.large-col.click(@click="onNameSelected(log)") {{ log.label }}
           .divider
 </template>
 

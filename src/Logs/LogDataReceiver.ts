@@ -89,17 +89,29 @@ export interface iLogDataReceiver {
 
 export class WebSocketClient implements iLogDataReceiver {
   private webSocket: WebSocket
+  private _status: 'connected' | 'connecting' | 'disconnected' = 'connecting'
+  public get status() {
+    return this._status
+  }
   onDataReceive?: eventHandler<JsonData>
   constructor() {
-    this.webSocket = new WebSocket('ws://localhost:4000/rw_analyzer')
-    this.webSocket.onmessage = (d) => { 
-      const data = JSON.parse(d.data)
-      this.onDataReceive?.(data)
-    }
+    this.webSocket = <any>undefined
+    this.reconnect()
   }
 
   sendMessage(data: JsonData) {
     this.webSocket.send(JSON.stringify(data))
+  }
+
+  reconnect() {
+    this.webSocket = new WebSocket('ws://localhost:4000/rw_analyzer')
+    this._status = 'connecting'
+    this.webSocket.onopen = () => this._status = 'connected'
+    this.webSocket.onmessage = (d) => {
+      const data = JSON.parse(d.data)
+      this.onDataReceive?.(data)
+    }
+    this.webSocket.onclose = () => this._status = 'disconnected'
   }
 }
 
