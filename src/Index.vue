@@ -190,6 +190,9 @@ export default Vue.extend({
 
         case Events.EntrySwapped: {
           returnValue.currentEntry = data.entryName
+          selectedEntries.clear()
+          logManager.clearLogs()
+          tpsLogManager.clearLogs()
         } break
 
         case Events.FPSTPS: {

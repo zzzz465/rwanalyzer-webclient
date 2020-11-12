@@ -93,4 +93,8 @@ export class TPSLogManager {
 
     last.appendLog({ tick: globalTick, totalTime, totalTimeOfWatchedLogs })
   }
+
+  clearLogs (): void {
+    this._logChunks.clear()
+  }
 }

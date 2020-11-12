@@ -73,7 +73,7 @@ export default Vue.extend({
     this.updateKeys = [
       setInterval(() => {
         this.updateGraph()
-      }, 10)
+      }, 100)
     ]
   },
 
@@ -95,7 +95,7 @@ export default Vue.extend({
       if (logs.length <= 0) return
 
       const targetTps = logs[logs.length - 1].tpsTarget
-      const yMaxVal = Math.trunc(targetTps * 1.2)
+      const yMaxVal = Math.trunc(d3.max(logs, d => d.tpsTarget)! * 1.2)
 
       const x = d3.scaleLinear()
         .domain([0, logs.length - 1])
@@ -108,7 +108,8 @@ export default Vue.extend({
       // draw xAxis
       this.xAxis.call(d3.axisTop(x)
         .tickValues(x.ticks().filter(Number.isInteger))
-        .tickFormat(d3.format('d')))
+        .tickFormat(d => d3.format('d')((logs.length - d.valueOf())))
+        )
 
       // draw yAxis
       this.yAxis.call(d3.axisLeft(y))
