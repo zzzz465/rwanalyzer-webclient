@@ -24,6 +24,7 @@ import { AsEnumerable } from 'linq-es2015'
 import Vue from 'vue'
 import * as d3 from 'd3'
 import { Range } from '@/Logs/LogChunk'
+import { clearIntervals } from '@/Utils/interval'
 
 export default Vue.extend({
   props: {
@@ -85,7 +86,8 @@ export default Vue.extend({
       yAxis,
       tpsPath,
       area,
-      rootRectSize: [0, 0] // [width, height]
+      rootRectSize: [0, 0], // [width, height]
+      updateKeys: [] as number[]
     }
   },
 
@@ -101,9 +103,13 @@ export default Vue.extend({
 
     console.log(`rect size: ${this.rootRectSize}`)
 
-    setInterval(() => {
-      this.updateGraph()
-    }, 1000 / 80)
+    clearIntervals(this.updateKeys)
+
+    this.updateKeys = [
+      setInterval(() => {
+        this.updateGraph()
+      }, 1000 / 80)
+    ]
   },
 
   methods: {

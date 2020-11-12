@@ -21,5 +21,13 @@ module.exports = {
     'indent': 2,
     '@typescript-eslint/no-empty-function' : 'off',
     'no-lone-blocks': 'off'
-  }
+  },
+  overrides: [
+    {
+      "files": ["**/*.vue"],
+      "rules": {
+        '@typescript-eslint/no-non-null-assertion': 'off'
+      }
+    }
+  ]
 }

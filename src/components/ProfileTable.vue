@@ -77,6 +77,7 @@ import Vue from 'vue'
 import * as d3 from 'd3'
 import { LogManager } from '@/Logs/LogManager'
 import { ProfileLog } from '@/Logs/ProfileLog'
+import { clearIntervals } from '@/Utils/interval'
 
 // 현재 기록되는 아이템들을 보여줌
 
@@ -92,21 +93,26 @@ export default Vue.extend({
   },
 
   filters: {
-    number(value: number) {
+    number (value: number) {
       return value.toFixed(3).toString() + 'ms'
     }
   },
 
-  data() {
+  data () {
     return {
-      profileLogs: [] as ProfileLog[]
+      profileLogs: [] as ProfileLog[],
+      updateKeys: [] as number[]
     }
   },
 
-  mounted() {
-    setInterval(() => {
-      this.updateValues()
-    }, 100)
+  mounted () {
+    clearIntervals(this.updateKeys)
+
+    this.updateKeys = [
+      setInterval(() => {
+        this.updateValues()
+      }, 100)
+    ]
   },
 
   methods: {
@@ -114,11 +120,11 @@ export default Vue.extend({
       this.profileLogs = this.logManager.profileLogs.sort(d => d.average)
       // const contentDiv = this.$refs.content as HTMLDivElement
       // const profileLogs = this.logManager.profileLogs
-// 
+      //
       // d3.select(contentDiv)
-        // .selectAll<HTMLDivElement, ProfileLog>('div')
-        // .data(profileLogs, d => d.key)
-        // .join('div')
+      // .selectAll<HTMLDivElement, ProfileLog>('div')
+      // .data(profileLogs, d => d.key)
+      // .join('div')
     }
   }
 })

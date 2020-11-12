@@ -26,17 +26,16 @@
     max-height: 100%;
     overflow: scroll;
   }
+  .border {
+    margin: 12px;
+    border: solid;
+    border-color: RGB(60, 60, 60);
+  }
   .content {
     flex: 4;
     background-color: #00161D;
     display: flex;
     flex-direction: column;
-
-    .border {
-      margin: 12px;
-      border: solid;
-      border-color: RGB(60, 60, 60);
-    }
 
     .list {
       flex: 10;
@@ -56,7 +55,19 @@
   }
   .optional {
     flex: 1;
-    background-color: RGB(120, 120, 120);
+    display: flex;
+    flex-direction: column;
+    background-color:  #00161D;
+  }
+  .information-panel {
+    flex: 5;
+  }
+  .control-panel {
+    flex: 4;
+  }
+  .FPSTPS {
+    flex: 2;
+    background-color: #151F29;
   }
 </style>
 
@@ -81,6 +92,11 @@
               :tpsLogManager="tpsLogManager"
             )
         .optional
+          .information-panel
+          .control-panel
+          FPSTPSChart.FPSTPS.border(
+            :logManager="fpstpsLogManager"
+          )
 </template>
 
 <script lang="ts">
@@ -89,6 +105,7 @@ import BasicChart from './components/BasicChart.vue'
 import Tab from './components/Tab/TabContainer.vue'
 import ProfileTable from './components/ProfileTable.vue'
 import TPSChart from './components/TPSChart.vue'
+import FPSTPSChart from './components/FPSTPSChart.vue'
 import { AsEnumerable } from 'linq-es2015'
 import { LogManager } from './Logs/LogManager'
 import { Events, WebSocketClient, MockLogDataReceiver, iLogDataReceiver } from './Logs/LogDataReceiver'
@@ -96,6 +113,7 @@ import { ProfileLog } from './Logs/ProfileLog'
 import { TPSLogManager } from './Logs/TPSLog'
 import Deque from 'double-ended-queue'
 import * as d3 from 'd3'
+import { FPSTPSManager } from './Logs/FPSTPSManager'
 
 interface Tab {
   tab: Entry[]
@@ -111,7 +129,8 @@ export default Vue.extend({
     BasicChart,
     TPSChart,
     Tab,
-    ProfileTable
+    ProfileTable,
+    FPSTPSChart
   },
   data () {
     const logLimit = 1000
@@ -128,9 +147,12 @@ export default Vue.extend({
     // const iLog: iLogDataReceiver = mockLogDataReceiver
     // mockLogDataReceiver.Start()
 
+    const fpstpsLogManager = new FPSTPSManager()
+
     const returnValue = {
       logManager,
       tpsLogManager,
+      fpstpsLogManager,
       tick: 0,
       tabs: new Map<string, Set<string>>(),
       currentEntry: '',
@@ -160,6 +182,10 @@ export default Vue.extend({
 
         case Events.EntrySwapped: {
           returnValue.currentEntry = data.entryName
+        } break
+
+        case Events.FPSTPS: {
+          fpstpsLogManager.appendLog(data)
         } break
       }
     }

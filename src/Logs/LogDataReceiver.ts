@@ -6,6 +6,7 @@ export type JsonData =
   | EntryAdded
   | EntrySwapped
   | ToggleGameState
+  | FPSTPS
 
 export interface LogData {
   type: Events.LogData
@@ -37,12 +38,20 @@ export interface EntrySwapped {
   entryName: string
 }
 
+export interface FPSTPS {
+  type: Events.FPSTPS,
+  tps: number
+  tpsTarget: number
+  fps: number
+}
+
 export const enum Events {
   LogData = 'LogData',
   InitEntries = 'InitEntries',
   EntryAdded = 'EntryAdded',
   EntrySwapped = 'EntrySwapped',
-  toggleTickState = 'ToggleGameState'
+  toggleTickState = 'ToggleGameState',
+  FPSTPS = 'FPSTPS'
 }
 
 interface eventHandler<T> {

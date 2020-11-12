@@ -5,8 +5,7 @@
   }
 </style>
 
-<template lang="pug">
-  .graph(ref="graph")
+<template lang="pug"> .graph(ref="graph")
 </template>
 
 <script lang="ts">
@@ -20,6 +19,7 @@ import { AsEnumerable } from 'linq-es2015'
 import { LogManager } from '@/Logs/LogManager'
 import { line, scaleQuantize } from 'd3'
 import { ResizeObserver } from '@juggle/resize-observer'
+import { clearIntervals } from '@/Utils/interval'
 
 export default Vue.extend({
   props: {
@@ -42,7 +42,7 @@ export default Vue.extend({
     yAxisReference () {
       this.paths.selectAll('path')
         .remove()
-    },
+    }
   },
 
   computed: {
@@ -108,6 +108,7 @@ export default Vue.extend({
       isHover: false,
       frameCounter: 0,
       rootRectSize: [0, 0], // [width, height]
+      updateKeys: [] as number[]
     }
   },
 
@@ -122,28 +123,31 @@ export default Vue.extend({
       .attr('height', this.rootRectSize[1])
 
     // const ro = new ResizeObserver(e => {
-      // e.forEach(entry => {
-        // const { width, height } = entry.contentRect
-        // this.rootRectSize = [width, height]
-        // this.svg
-          // .attr('width', width)
-          // .attr('height', height - 5)
-        // console.log(`width: ${width}, height: ${height}`)
-        // console.log(entry)
-      // })
+    // e.forEach(entry => {
+    // const { width, height } = entry.contentRect
+    // this.rootRectSize = [width, height]
+    // this.svg
+    // .attr('width', width)
+    // .attr('height', height - 5)
+    // console.log(`width: ${width}, height: ${height}`)
+    // console.log(entry)
+    // })
     // })
 
     // ro.observe(rootNode)
 
-    setInterval(() => {
-      this.updateGraph()
-    }, 1000 / 80)
+    this.updateKeys = clearIntervals(this.updateKeys)
 
     const size = 5
-    setInterval(() => {
-      console.log(`framerate: ${this.frameCounter / size}`)
-      this.frameCounter = 0
-    }, 1000 * size)
+    this.updateKeys = [
+      setInterval(() => {
+        this.updateGraph()
+      }, 1000 / 80),
+      setInterval(() => {
+        console.log(`framerate: ${this.frameCounter / size}`)
+        this.frameCounter = 0
+      }, 1000 * size)
+    ]
 
     this.rect
       .on('mouseover', (event) => this.mouseover(event))
@@ -163,7 +167,6 @@ export default Vue.extend({
 
       this.yAxis
         .attr('transform', `translate(${margin}, ${0})`)
-
 
       const logManager = this.logManager
 
