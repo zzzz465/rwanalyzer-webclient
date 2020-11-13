@@ -18,7 +18,7 @@
       Tab.tab(
         :name="key"
         :set="set"
-        :currentEntry="currentEntry"
+        v-model="currentEntry"
       )
 </template>
 
@@ -29,6 +29,10 @@ import Tab from './Tab.vue'
 export default Vue.extend({
   components: {
     Tab
+  },
+  model: {
+    prop: 'currentEntry',
+    event: 'entrySelected'
   },
   props: {
     items: {

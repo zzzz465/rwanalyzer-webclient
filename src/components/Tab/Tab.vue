@@ -15,23 +15,29 @@
     padding-bottom: 6px;
   }
   .selected {
-    border: 3px solid;
-    padding: 8px;
+    /* border: 3px solid; */
+    /* padding: 8px; */
     display: block;
   }
+  .entries {
+    margin-left: 24px;
+    margin-right: 24px;
+  }
   .entry {
-    padding-left: 24px;
-    padding-bottom: 6px;
-    padding-right: 24px;
+    margin-bottom: 6px;
     display: block;
     cursor: pointer;
   }
-  .entry::after {
-    content: " ";
+  .divider {
     display: block;
+    margin-left: auto;
+    margin-right: auto;
     width: 100%;
     height: 1px;
     background: RGB(80, 80, 80);
+  }
+  button {
+    outline: none;
   }
 </style>
 
@@ -40,9 +46,12 @@
     .title
       h2 {{ name }}
     .scroll
-      div.entry(v-for="item in entries" @click="entrySelected(item)")
-        button.selected(v-if="item === currentEntry" block) {{ item }}
-        button(v-else block) {{ item }}
+      div.entries(
+        v-for="item in entries"
+        @click="entrySelected(item)")
+        .entry(v-bind:class="{ selected: currentEntry === item }")
+          button(block) {{ item }}
+        .divider
 </template>
 
 <script lang="ts">
@@ -50,7 +59,7 @@ import Vue from 'vue'
 export default Vue.extend({
   model: {
     prop: 'currentEntry',
-    event: 'currentEntryChanged'
+    event: 'entrySelected'
   },
   props: {
     name: {
@@ -75,13 +84,11 @@ export default Vue.extend({
   },
 
   mounted() {
-    console.log(this.name)
-    console.log(this.set)
   },
 
   methods: {
     entrySelected (key: string) {
-      this.$emit('currentEntryChanged', key)
+      this.$emit('entrySelected', key)
     }
   }
 })

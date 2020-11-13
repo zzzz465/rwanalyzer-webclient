@@ -90,7 +90,7 @@
   )
     .root
       .left
-        Tab(:items="entries" :currentEntry="currentEntry")
+        Tab(:items="entries" v-model="currentEntry")
       .main
         .content
           .list.border
@@ -235,7 +235,7 @@ export default Vue.extend({
   },
 
   watch: {
-    'socketClient._status'(value: 'connected' | 'connecting' | 'disconnected'): void {
+    'socketClient._status' (value: 'connected' | 'connecting' | 'disconnected'): void {
       switch (value) {
         case 'connected':
           this.connection.connecting = false

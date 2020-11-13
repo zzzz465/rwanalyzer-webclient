@@ -1,4 +1,4 @@
-<style scoped>
+<style lang="less" scoped>
   .root-ProfileTable {
     width: 100%;
     height: 100%;
@@ -17,6 +17,7 @@
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
+    margin-right: 16px;
   }
   .divider {
     content: " ";
@@ -55,7 +56,7 @@
     background-color: RGB(80, 80, 80);
   }
   .selected {
-    background-color: blue;
+    // background-color: blue;
   }
   .col {
     flex: 1;
@@ -67,6 +68,7 @@
   }
   .check-box {
     flex: 0.5;
+    font-size: 22px;
   }
 </style>
 
@@ -74,7 +76,7 @@
   .root-ProfileTable
     .table
       .header
-        .col.check-box selection
+        .col.check-box.el-icon-check
         .col Average
         .col Percent
         .col Total
@@ -86,7 +88,10 @@
           v-for="log in profileLogs"
         )
           .row(v-bind:class="{ selected: selected.has(log.key) }")
-            .col.check-box.click(@click="onClickRow(log)")
+            .col.check-box.click(
+              @click="onClickRow(log)"
+              v-bind:class="{ 'el-icon-check': selected.has(log.key) }"
+              )
             .col.average {{ log.average | number }}
             .col.percent NULL
             .col.total {{ log.total | number }}
