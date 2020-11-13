@@ -1,0 +1,25 @@
+name: Node.js CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - 
+      name: checkout branch
+      run: git switch -c dist
+    - name: Node.js install
+      uses: actions/setup-node@v1
+    - run: npm install
+    - run: npm run build
+    - name: push dist commit into dist branch
+      run: |
+        git config user.name "madeline-CI"
+        git config user.email "zzzz465@naver.com"
+        git add .
+        git commit -m "CI generated build"
+        git push origin dist --force
