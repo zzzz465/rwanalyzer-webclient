@@ -141,7 +141,8 @@ export default Vue.extend({
 
     const focusText = svg.append('g')
       .append('text')
-      .style('opacity', 0)
+      .style('opacity', 100)
+      .attr('fill', 'white')
       .attr('text-anchor', 'left')
       .attr('alignment-baseline', 'middle')
 
@@ -178,6 +179,9 @@ export default Vue.extend({
 
     this.rootRectSize = [rootNode.offsetWidth, rootNode.offsetHeight]
     this.svg
+      .attr('width', this.rootRectSize[0])
+      .attr('height', this.rootRectSize[1])
+    this.rect
       .attr('width', this.rootRectSize[0])
       .attr('height', this.rootRectSize[1])
 
@@ -341,6 +345,11 @@ export default Vue.extend({
           this.circle
             .attr('cx', x(least.selectedChunk.tick.start)!)
             .attr('cy', y(this.getYValue(least.selectedChunk))!)
+
+          this.focusText
+            .attr('opacity', 100)
+            .attr('transform', `translate(${this.mousePos[0] + 10}, ${this.mousePos[1] - 10})`)
+            .text(`call: ${least.selectedChunk.hit} time: ${least.selectedChunk.time.toFixed(3)}`)
         }
       }
 
