@@ -109,7 +109,7 @@ export default Vue.extend({
       this.xAxis.call(d3.axisTop(x)
         .tickValues(x.ticks().filter(Number.isInteger))
         .tickFormat(d => d3.format('d')((logs.length - d.valueOf())))
-        )
+      )
 
       // draw yAxis
       this.yAxis.call(d3.axisLeft(y))

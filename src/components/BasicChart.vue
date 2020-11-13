@@ -6,19 +6,59 @@
     flex-direction: row;
   }
   .graph {
-    flex: 7;
+    flex: 8;
   }
-  .legends {
-    flex: 2;
-    background-color: gray;
+  .legend {
+    flex: 3;
+    // background-color: gray;
+    height: 100%;
+    margin: 20px;
+    overflow: scroll;
+
+    &::-webkit-scrollbar {
+      background: #1f38509f;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: #49525c;
+    }
+
+    .spacer {
+      height: 8px;
+    }
+  }
+  .row {
+    width: 100%;
+    display: flex;
+    margin: 0px;
+    justify-content: space-between;
+    align-items: center;
+
+    .color {
+      width: 16px;
+      height: 16px;
+      background-color: white;
+      border-radius: 50%;
+      margin-left: 14px;
+      margin-right: 7px;
+    }
+
+    .name {
+      flex: 1;
+      text-align: left;
+      color: white;
+    }
   }
 </style>
 
 <template lang="pug">
   .root-BasicChart
     .graph(ref="graph")
-    .legends(ref="legends")
-      .name hello world!
+    .legend
+      div(v-for="key in selectedKeys")
+        .row
+          .color(:style="`background-color: ${getColor(key)};`")
+          .name {{ getLabel(key) }}
+        .spacer
 </template>
 
 <script lang="ts">
@@ -126,7 +166,8 @@ export default Vue.extend({
       isHover: false,
       frameCounter: 0,
       rootRectSize: [0, 0], // [width, height]
-      updateKeys: [] as number[]
+      updateKeys: [] as number[],
+      selectedKeys: [] as string[]
     }
   },
 
@@ -177,6 +218,9 @@ export default Vue.extend({
     getColor: d3.scaleOrdinal(d3.schemeSet3),
 
     updateGraph () {
+      if (this.selectedKeys.length !== this.selection.size) // stupid way to data binding...
+        this.selectedKeys = [...this.selection.values()]
+
       const [width, height] = this.rootRectSize
       const margin = 40
 
@@ -300,8 +344,6 @@ export default Vue.extend({
         }
       }
 
-      this.updateLegend()
-
       this.frameCounter++
     },
 
@@ -322,18 +364,13 @@ export default Vue.extend({
       this.isHover = false
     },
 
-    updateLegend (): void {
-      const legends = this.$refs.legends as HTMLDivElement
-      d3.select(legends)
-        .selectAll('div')
-        .data([...this.selection.values()])
-        .join(
-          enter => enter,
-          update => update,
-          exit => exit.remove()
-        )
-    }
+    getLabel (key: string): string {
+      const label = this.logManager.getLog(key)?.label
+      if (!label)
+        return 'ERROR'
 
+      return label.split('.').slice(-1)[0]
+    }
   }
 })
 </script>

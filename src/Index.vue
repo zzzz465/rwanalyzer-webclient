@@ -11,6 +11,7 @@
     display: flex;
     width: 99%;
     height: 98%;
+    overflow: hidden;
   }
   .left {
     flex: 1;
@@ -46,6 +47,7 @@
     .graph {
       flex: 6;
       background-color: #151F29;
+      overflow: hidden;
     }
 
     .tickGraph {

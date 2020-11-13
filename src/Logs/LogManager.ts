@@ -53,4 +53,8 @@ export class LogManager {
             pLog.appendLog(log)
         }
     }
+
+    getLog (key: string): ProfileLog | undefined {
+        return this._plogs.get(key)
+    }
 }
