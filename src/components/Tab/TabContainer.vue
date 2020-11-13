@@ -18,7 +18,8 @@
       Tab.tab(
         :name="key"
         :set="set"
-        v-model="currentEntry"
+        :currentEntry="currentEntry"
+        @entrySelected="onEntrySelected"
       )
 </template>
 
@@ -37,7 +38,7 @@ export default Vue.extend({
   props: {
     items: {
       type: Map,
-      required: true,
+      required: true
     },
     currentEntry: {
       type: String,
@@ -46,17 +47,12 @@ export default Vue.extend({
   },
 
   watch: {
-    items () {
-      console.log('watched')
-    }
-  },
-
-  mounted () {
-
   },
 
   methods: {
-
+    onEntrySelected (val: string): void {
+      this.$emit('entrySelected', val)
+    }
   }
 })
 </script>

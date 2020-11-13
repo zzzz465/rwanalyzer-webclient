@@ -1,16 +1,28 @@
 <style lang="less" scoped>
-  .graph {
+  .root-BasicChart {
     width: 100%;
     height: 100%;
+    display: flex;
+    flex-direction: row;
+  }
+  .graph {
+    flex: 7;
+  }
+  .legends {
+    flex: 2;
+    background-color: gray;
   }
 </style>
 
 <template lang="pug">
-  .graph(ref="graph")
+  .root-BasicChart
+    .graph(ref="graph")
+    .legends(ref="legends")
+      .name hello world!
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { PropType } from 'vue'
 import * as d3 from 'd3'
 import * as d3_array from 'd3-array'
 import { ProfileLog } from '@/Logs/ProfileLog'
@@ -21,7 +33,6 @@ import { LogManager } from '@/Logs/LogManager'
 import { line, scaleQuantize } from 'd3'
 import { ResizeObserver } from '@juggle/resize-observer'
 import { clearIntervals } from '@/Utils/interval'
-import { PropType } from 'vue'
 
 export default Vue.extend({
   props: {
@@ -270,12 +281,11 @@ export default Vue.extend({
         const matchedLogs = []
         for (const log of filteredLogs) {
           const selectedChunk = log.filteredChunks.find(d => d.tick.start <= tick && tick <= d.tick.end)
-          if (selectedChunk) {
+          if (selectedChunk)
             matchedLogs.push({
               profileLog: log,
               selectedChunk
             })
-          }
         }
 
         const least = d3_array.least(matchedLogs, d => Math.abs(yVal - this.getYValue(d.selectedChunk)))
@@ -290,13 +300,13 @@ export default Vue.extend({
         }
       }
 
-      
+      this.updateLegend()
 
       this.frameCounter++
     },
 
     getYValue (data: { hit: number, time: number, chunkSize: number }) {
-      if (this.yAxisReference === 'hit') { return data.hit } else { return data.time }
+      if (this.yAxisReference === 'hit') { return data.hit } else return data.time
     },
 
     mouseover (event: any) {
@@ -310,6 +320,18 @@ export default Vue.extend({
 
     mouseleave (event: any) {
       this.isHover = false
+    },
+
+    updateLegend (): void {
+      const legends = this.$refs.legends as HTMLDivElement
+      d3.select(legends)
+        .selectAll('div')
+        .data([...this.selection.values()])
+        .join(
+          enter => enter,
+          update => update,
+          exit => exit.remove()
+        )
     }
 
   }

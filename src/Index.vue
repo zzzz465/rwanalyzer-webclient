@@ -222,7 +222,6 @@ export default Vue.extend({
           selectedEntries.clear()
           logManager.clearLogs()
           tpsLogManager.clearLogs()
-          console.log(data)
         } break
 
         case Events.FPSTPS: {
@@ -230,7 +229,6 @@ export default Vue.extend({
         } break
 
         case Events.RichInfoRespond: {
-          console.log(data)
           returnValue.richInfo = data.Data
         } break
       }
@@ -263,6 +261,13 @@ export default Vue.extend({
           this.socketClient.reconnect()
           break
       }
+    },
+
+    currentEntry (name: string): void {
+      this.socketClient.sendMessage({
+        type: Events.EntrySwapped,
+        entryName: name
+      })
     }
   },
 
