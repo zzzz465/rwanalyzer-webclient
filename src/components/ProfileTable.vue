@@ -96,7 +96,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { PropType } from 'vue'
 import * as d3 from 'd3'
 import { LogManager } from '@/Logs/LogManager'
 import { ProfileLog } from '@/Logs/ProfileLog'
@@ -105,18 +105,13 @@ import { clearIntervals } from '@/Utils/interval'
 // 현재 기록되는 아이템들을 보여줌
 
 export default Vue.extend({
-  model: {
-    prop: 'selected',
-    event: 'selectionChange'
-  },
-
   props: {
     logManager: {
       type: LogManager,
       required: true
     },
     selected: { // Set<string>
-      type: Set,
+      type: Set as PropType<Set<string>>,
       required: true
     }
   },
@@ -157,13 +152,7 @@ export default Vue.extend({
     },
 
     onClickRow (row: ProfileLog): void {
-      const key = row.key
-      if (this.selected.has(key))
-        this.selected.delete(key)
-      else
-        this.selected.add(key)
-
-      this.$emit('selectionChange')
+      this.$emit('rowSelected', row)
     }
   }
 })

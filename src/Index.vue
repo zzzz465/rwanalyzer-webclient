@@ -97,6 +97,7 @@
             ProfileTable(
               :logManager="logManager"
               :selected="selectedEntries"
+              @rowSelected="rowSelected"
               @nameSelected="requestRichInfo"
             )
           .graph.border
@@ -216,6 +217,7 @@ export default Vue.extend({
           selectedEntries.clear()
           logManager.clearLogs()
           tpsLogManager.clearLogs()
+          console.log(data)
         } break
 
         case Events.FPSTPS: {
@@ -279,8 +281,12 @@ export default Vue.extend({
       })
     },
 
-    showLoadingScreen (): void {
-
+    rowSelected (row: ProfileLog): void {
+      const set = this.selectedEntries
+      if (set.has(row.key))
+        set.delete(row.key)
+      else
+        set.add(row.key)
     }
   }
 })
