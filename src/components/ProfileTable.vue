@@ -56,7 +56,7 @@
     background-color: RGB(80, 80, 80);
   }
   .selected {
-    // background-color: blue;
+    background-color: #1A293C;
   }
   .col {
     flex: 1;

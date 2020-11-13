@@ -15,9 +15,7 @@
     padding-bottom: 6px;
   }
   .selected {
-    /* border: 3px solid; */
-    /* padding: 8px; */
-    display: block;
+    background-color: #72804b;
   }
   .entries {
     margin-left: 24px;

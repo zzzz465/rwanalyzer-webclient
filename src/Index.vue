@@ -9,8 +9,8 @@
   }
   .root {
     display: flex;
-    width: 95%;
-    height: 90%;
+    width: 99%;
+    height: 98%;
   }
   .left {
     flex: 1;
@@ -74,6 +74,11 @@
 </style>
 
 <style>
+  /* hide scrollbar page since we want to make a full screen app */
+  body::-webkit-scrollbar {
+    display: none;
+  }
+
   .el-loading-text {
     /* color: blue !important; */
     font-size: 15px !important;
@@ -240,6 +245,12 @@ export default Vue.extend({
         case 'connected':
           this.connection.connecting = false
           this.connection.retryCount = -1
+          this.$notify({
+            title: 'Connected',
+            message: 'connected to localhost:4000 local rimworld server',
+            position: 'bottom-right',
+            showClose: false
+          })
           break
 
         case 'connecting':
