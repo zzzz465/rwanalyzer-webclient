@@ -1,4 +1,6 @@
 # webclient
+web visualizer for dub's performance analyzer.
+typescript with d3.js
 
 ## Project setup
 ```
